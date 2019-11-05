@@ -7,8 +7,10 @@ logger = logging.getLogger(__name__)
 JobState = enum.Enum('JobState', 'SUBMIT WAIT_RESOURCES READY RUNNING WAIT_IO DONE')
 JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
 
+#io = [Disco, Leitora1, Leitora2, Impressora1, Impressora2]
+
 class Job:
-    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io=(False, 0, 0)):
+    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io=[None, None, None, None, None]): # io=(False, 0, 0)):
         self.id = _id
         self.total_cycles = execution_time
         self.priority = priority

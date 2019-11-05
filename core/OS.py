@@ -5,7 +5,8 @@ import time
 import threading
 
 from .job import Job, JobState, JobPriority
-from .event import IOFinishedEvent, KillProcessEvent
+from .event import IOFinishedEvent, KillProcessEvent, Event
+from .devices.device import Device
 from queue import Queue, PriorityQueue, Empty
 
 logger = logging.getLogger(__name__)
@@ -16,7 +17,13 @@ class OS:
         self.jobs_queue = PriorityQueue()
         self.ready_jobs = []
         self.active_jobs = []
-        self.waiting_io_jobs = []
+        # self.waiting_io_jobs = []
+        self.waiting_disk_jobs = []
+        self.waiting_leitora1_jobs = []
+        self.waiting_leitora2_jobs = []
+        self.waiting_impressora1_jobs = []
+        self.waiting_impressora2_jobs = []
+
         self.running_jobs = 0
 
         self.processing = threading.Lock()
@@ -54,9 +61,9 @@ class OS:
             print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
             event.process()
 
-            for j in self.waiting_io_jobs[:]:
+            for j in self.waiting_leitora1_jobs[:]:
                 if j.id == event.job_id:
-                    self.waiting_io_jobs.remove(j)
+                    self.waiting_leitora1_jobs.remove(j)
                     j.state = JobState.READY
                     self.ready_jobs.append(j)
                     return
@@ -65,9 +72,9 @@ class OS:
             print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
             event.process()
 
-            for j in self.waiting_io_jobs[:]:
+            for j in self.waiting_leitora1_jobs[:]:
                 if j.id == event.job_id:
-                    self.waiting_io_jobs.remove(j)
+                    self.waiting_leitora1_jobs.remove(j)
                     j.state = JobState.DONE
                     return
 
@@ -112,16 +119,24 @@ class OS:
         pass
 
     def add_job(self, job: Job):
-        if job.io[0]:
-            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority.name} priority and I/O on cycle {job.io[1]}|{job.io[2]}. Adding to queue.')
+        devs = []
+
+        for dev in job.io:
+            if dev != None:
+                devs.append(dev)
+                print(dev.read_cycles)
+
+        if len(devs):
+            dev_list = " | ".join([dev.name +" "+ str(dev.start_cycle) + "(" + str(dev.read_cycles) + ")" for dev in devs])
+            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and I/O accesses: {dev_list}. Adding to queue.')
         else:
-            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority.name} priority and no I/O. Adding to queue.')
+            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and no I/O. Adding to queue.')
         job.state = JobState.WAIT_RESOURCES
         job.arrive_time = self.current_cycle
         self.jobs_queue.put(job)
 
-    def io_finish(self, job_id):
-        evt = IOFinishedEvent(job_id)
+    def io_finish(self, job_id, finish_event: Event):
+        evt = finish_event(job_id)
         self.event_queue.put(evt)
 
     def _schedulers(self):
@@ -150,14 +165,14 @@ class OS:
             for job in self.active_jobs[:]:
                 job.cycle()
 
-                if job.io[0] and job.current_cycle == job.io[1]:
-                    print(f'[{self.current_cycle:05d}] SO: Job {job.id} requesting I/O operation.')
-                    t = threading.Timer(0.1 * job.io[2], self.io_finish, [job.id])
+                if job.io[1] and job.current_cycle == job.io[1].start_cycle: # leitora1
+                    print(f'[{self.current_cycle:05d}] SO: Job {job.io[1].name} requesting I/O operation.')
+                    t = threading.Timer(0.1 * job.io[1].read_cycles, self.io_finish, [job.id, job.io[1].finish_event]) # espera clock * device_read_cycles
                     job.state = JobState.WAIT_IO
 
                     self.running_jobs -= 1
                     self.active_jobs.remove(job)
-                    self.waiting_io_jobs.append(job)
+                    self.waiting_leitora1_jobs.append(job)
 
                     t.start()
 

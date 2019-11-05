@@ -4,7 +4,9 @@ import inspect
 import threading
 
 from core.OS import OS
-from core.job import Job
+from core.job import Job, JobPriority
+from core.devices.device import Device
+from core.event import IOFinishedEvent
 
 class CLI:
     def __init__(self):
@@ -53,17 +55,24 @@ class CLI:
         number = int(number)
 
         for _ in range(number):
-            has_io = bool(random.randint(0, 1))
+            disk = leitora1 = leitora2 = impressora1 = impressora2 = None
+
+            has_leitora1 = bool(random.randint(0, 1))
 
             try:
-                io_start_time = random.randint(2, run_time - 1) if has_io else 0
+                leitora1_start_cycle = random.randint(2, run_time - 1) if has_leitora1 else 0
             except ValueError:
-                has_io = False
-                io_start_time = 0
+                has_leitora1 = False
+                leitora1_start_cycle = 0
 
-            io_duration = random.randint(10, 100) if has_io else 0
+            leitora1_read_cycles = random.randint(10, 100) if has_leitora1 else 0
 
-            new_job = Job(self.job_ids, run_time, io=(has_io, io_start_time, io_duration))
+            if has_leitora1:
+                leitora1 = Device("leitora1", leitora1_start_cycle, leitora1_read_cycles, IOFinishedEvent)
+
+            # io=(has_leitora1, io_start_time, leitora1_duration))
+            new_job = Job(self.job_ids, run_time,
+                          JobPriority.NORMAL, [disk, leitora1, leitora2, impressora1, impressora2])
             self.job_ids += 1
 
             self.os.add_job(new_job)
