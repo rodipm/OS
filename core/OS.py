@@ -28,14 +28,21 @@ class OS:
         print(f'[{self.current_cycle:05d}] Initializing Process Scheduler')
         print(f'[{self.current_cycle:05d}] Initializing Traffic Controller')
 
+        self.schedulers = None 
+        self.processor = None 
+        self.started = False
+
+
+    def start(self):
         self.schedulers = threading.Thread(target=self._schedulers)
         self.processor = threading.Thread(target=self._run)
-
+        self.started = True
         self.schedulers.start()
         self.processor.start()
+        return (self.schedulers, self.processor)
+
 
     def _event_process(self):
-        # while True:
         try:
             event = self.event_queue.get(False)
         except Empty:
@@ -118,22 +125,25 @@ class OS:
         self.event_queue.put(evt)
 
     def _schedulers(self):
-        while True:
+        while self.started:
             self.processing.acquire()
             self._job_scheduler()
             self._process_scheduler()
             self._traffic_controller()
             self._event_process()
             self.processing.release()
+        #self.schedulers.terminate()
+        del(self.schedulers)
 
     def _run(self):
-        while True:
+        while self.started:
             self.processing.acquire()
 
             if len(self.active_jobs) == 0:
                 self.current_cycle += 1
                 self.processing.release()
                 time.sleep(0.1)
+                self.started = False
                 continue
 
 
@@ -162,3 +172,5 @@ class OS:
 
             self.processing.release()
             time.sleep(0.01)
+        #self.processor.terminate()
+        del(self.processor)

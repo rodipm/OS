@@ -1,6 +1,7 @@
 import sys
 import random
 import inspect
+import threading
 
 from core.OS import OS
 from core.job import Job
@@ -11,6 +12,10 @@ class CLI:
                 "add": {
                         "exec": self.add_command,
                         "desc": "Adiciona um ou mais jobs ao sistema"
+                    },
+                "start": {
+                        "exec": self.start_command,
+                        "desc": "Inicia a simulacao do sistema operacional"
                     },
                 "ls": {
                         "exec": self.ls_command,
@@ -62,6 +67,12 @@ class CLI:
             self.job_ids += 1
 
             self.os.add_job(new_job)
+
+    def start_command(self):
+        t1, t2 = self.os.start()
+        t1.join()
+        t2.join()
+
 
     def ls_command(self):
         print("Comandos disponiveis:")
