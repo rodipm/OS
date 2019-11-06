@@ -129,7 +129,7 @@ class OS:
                 devs.append(job.io[dev])
 
         if len(devs):
-            dev_list = " | ".join([dev.name +" "+ str(dev.start_cycle) + "(" + str(dev.read_cycles) + ")" for dev in devs])
+            dev_list = " | ".join([dev.name +" "+ str(len(dev.io_requests)) for dev in devs])
             print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and I/O accesses: {dev_list}. Adding to queue.')
         else:
             print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and no I/O. Adding to queue.')
@@ -166,9 +166,20 @@ class OS:
                 job.cycle()
 
                 for dev in job.io.keys():
-                    if job.io[dev] and job.current_cycle == job.io[dev].start_cycle: # leitora1
-                        print(f'[{self.current_cycle:05d}] SO: Job {job.io[dev].name} requesting I/O operation.')
-                        t = threading.Timer(0.1 * job.io[dev].read_cycles, self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
+                    if not job.io[dev]:
+                        continue
+
+                    request_io = False
+
+                    for req in job.io[dev].io_requests:
+                        if req[0] == job.current_cycle:
+                            request_io = req
+                            break
+
+                    if request_io:
+
+                        print(f'[{self.current_cycle:05d}] SO: Job {job.id} requesting I/O operation on {job.io[dev].name}.')
+                        t = threading.Timer(0.1 * request_io[1], self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
                         job.state = JobState.WAIT_IO
 
                         self.running_jobs -= 1

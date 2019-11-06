@@ -54,6 +54,13 @@ class CLI:
     def add_command(self, run_time, number):
         run_time = int(run_time)
         number = int(number)
+        finish_events = {
+            "disco": DiskFinishedEvent,
+            "leitora1": LeitoraUmFinishedEvent,
+            "leitora2": LeitoraDoisFinishedEvent,
+            "impressora1": ImpressoraUmFinishedEvent,
+            "impressora2": ImpressoraDoisFinishedEvent
+        }
 
         for _ in range(number):
             io = {
@@ -64,19 +71,33 @@ class CLI:
                 "impressora2": None
             }
 
+
             for dev in io.keys():
+                io_requests = []
                 has_device = bool(random.randint(0, 1))
 
-                try:
-                    start_cycle = random.randint(2, run_time - 1) if has_device else 0
-                except ValueError:
-                    has_device = False
+                if not has_device:
+                    continue
+
+                last_start_cycle = 0
+                number_requests = random.randint(1, 6)
+
+                for i in range(number_requests):
                     start_cycle = 0
+                    read_cycles = random.randint(1, 10)
 
-                read_cycles = random.randint(10, 100) if has_device else 0
+                    try:
+                        start_cycle = random.randint(last_start_cycle, i * run_time//number_requests - read_cycles)
+                        last_start_cycle = start_cycle
+                    except ValueError:
+                        continue
+                        
+                    io_requests.append((start_cycle, read_cycles))
 
-                if has_device:
-                    io[dev] = Device(dev, start_cycle, read_cycles, LeitoraUmFinishedEvent)
+
+                if len(io_requests):
+                    io[dev] = Device(dev, io_requests, finish_events[dev])
+                    print(io_requests)
 
 
             job_priority = random.choice(list(JobPriority)) 

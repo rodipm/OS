@@ -7,7 +7,6 @@ logger = logging.getLogger(__name__)
 JobState = enum.Enum('JobState', 'SUBMIT WAIT_RESOURCES READY RUNNING WAIT_IO DONE')
 JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
 
-#io = [Disco, Leitora1, Leitora2, Impressora1, Impressora2]
 io = { "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }
 
 class Job:
