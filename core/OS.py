@@ -1,4 +1,5 @@
 import logging
+import copy
 import coloredlogs
 import sys
 import time
@@ -17,12 +18,14 @@ class OS:
         self.jobs_queue = PriorityQueue()
         self.ready_jobs = []
         self.active_jobs = []
-        # self.waiting_io_jobs = []
-        self.waiting_disk_jobs = []
-        self.waiting_leitora1_jobs = []
-        self.waiting_leitora2_jobs = []
-        self.waiting_impressora1_jobs = []
-        self.waiting_impressora2_jobs = []
+
+        self.waiting_io_jobs = {
+            "disco": [],
+            "leitora1": [],
+            "leitora2": [],
+            "impressora1": [],
+            "impressora2": []
+        }
 
         self.running_jobs = 0
 
@@ -30,10 +33,6 @@ class OS:
 
         self.multiprogramming = multiprogramming
         self.current_cycle = 0
-
-        print(f'[{self.current_cycle:05d}] Initializing Job Scheduler')
-        print(f'[{self.current_cycle:05d}] Initializing Process Scheduler')
-        print(f'[{self.current_cycle:05d}] Initializing Traffic Controller')
 
         self.schedulers = None 
         self.processor = None 
@@ -56,14 +55,19 @@ class OS:
             return
 
         event_name = type(event).__name__
+        event_base_class = type(event).__bases__[0]
 
-        if type(event) == IOFinishedEvent:
+        if event_base_class == IOFinishedEvent:
             print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
             event.process()
 
-            for j in self.waiting_leitora1_jobs[:]:
+            waiting_io_jobs_cp = copy.deepcopy(self.waiting_io_jobs)
+
+            dev = event.device_name
+
+            for j in waiting_io_jobs_cp[dev]:
                 if j.id == event.job_id:
-                    self.waiting_leitora1_jobs.remove(j)
+                    self.waiting_io_jobs[dev].remove(j)
                     j.state = JobState.READY
                     self.ready_jobs.append(j)
                     return
@@ -72,11 +76,12 @@ class OS:
             print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
             event.process()
 
-            for j in self.waiting_leitora1_jobs[:]:
-                if j.id == event.job_id:
-                    self.waiting_leitora1_jobs.remove(j)
-                    j.state = JobState.DONE
-                    return
+            for dev in waiting_io_jobs_cp.keys():
+                for j in waiting_io_jobs_cp[dev]:
+                    if j.id == event.job_id:
+                        self.waiting_io_jobs[dev].remove(j)
+                        j.state = JobState.DONE
+                        return
 
             for j in self.active_jobs[:]:
                 if j.id == event.job_id:
@@ -115,16 +120,13 @@ class OS:
             self.running_jobs += 1
             self.active_jobs.append(job) # Initilize job with 0 used cycles
 
-    def _traffic_controller(self):
-        pass
 
     def add_job(self, job: Job):
         devs = []
 
-        for dev in job.io:
-            if dev != None:
-                devs.append(dev)
-                print(dev.read_cycles)
+        for dev in job.io.keys():
+            if job.io[dev] != None:
+                devs.append(job.io[dev])
 
         if len(devs):
             dev_list = " | ".join([dev.name +" "+ str(dev.start_cycle) + "(" + str(dev.read_cycles) + ")" for dev in devs])
@@ -144,10 +146,8 @@ class OS:
             self.processing.acquire()
             self._job_scheduler()
             self._process_scheduler()
-            self._traffic_controller()
             self._event_process()
             self.processing.release()
-        #self.schedulers.terminate()
         del(self.schedulers)
 
     def _run(self):
@@ -165,16 +165,17 @@ class OS:
             for job in self.active_jobs[:]:
                 job.cycle()
 
-                if job.io[1] and job.current_cycle == job.io[1].start_cycle: # leitora1
-                    print(f'[{self.current_cycle:05d}] SO: Job {job.io[1].name} requesting I/O operation.')
-                    t = threading.Timer(0.1 * job.io[1].read_cycles, self.io_finish, [job.id, job.io[1].finish_event]) # espera clock * device_read_cycles
-                    job.state = JobState.WAIT_IO
+                for dev in job.io.keys():
+                    if job.io[dev] and job.current_cycle == job.io[dev].start_cycle: # leitora1
+                        print(f'[{self.current_cycle:05d}] SO: Job {job.io[dev].name} requesting I/O operation.')
+                        t = threading.Timer(0.1 * job.io[dev].read_cycles, self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
+                        job.state = JobState.WAIT_IO
 
-                    self.running_jobs -= 1
-                    self.active_jobs.remove(job)
-                    self.waiting_leitora1_jobs.append(job)
+                        self.running_jobs -= 1
+                        self.active_jobs.remove(job)
+                        self.waiting_io_jobs[dev].append(job)
 
-                    t.start()
+                        t.start()
 
                 if job.state == JobState.DONE:
                     print(f'[{self.current_cycle:05d}] SO: Job {job.id} finished after {self.current_cycle - job.start_time} cycles.')

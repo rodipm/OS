@@ -2,11 +2,12 @@ import sys
 import random
 import inspect
 import threading
+import enum
 
 from core.OS import OS
 from core.job import Job, JobPriority
 from core.devices.device import Device
-from core.event import IOFinishedEvent
+from core.event import IOFinishedEvent, DiskFinishedEvent, LeitoraUmFinishedEvent, LeitoraDoisFinishedEvent, ImpressoraUmFinishedEvent, ImpressoraDoisFinishedEvent 
 
 class CLI:
     def __init__(self):
@@ -55,24 +56,33 @@ class CLI:
         number = int(number)
 
         for _ in range(number):
-            disk = leitora1 = leitora2 = impressora1 = impressora2 = None
+            io = {
+                "disco": None,
+                "leitora1": None,
+                "leitora2": None,
+                "impressora1": None,
+                "impressora2": None
+            }
 
-            has_leitora1 = bool(random.randint(0, 1))
+            for dev in io.keys():
+                has_device = bool(random.randint(0, 1))
 
-            try:
-                leitora1_start_cycle = random.randint(2, run_time - 1) if has_leitora1 else 0
-            except ValueError:
-                has_leitora1 = False
-                leitora1_start_cycle = 0
+                try:
+                    start_cycle = random.randint(2, run_time - 1) if has_device else 0
+                except ValueError:
+                    has_device = False
+                    start_cycle = 0
 
-            leitora1_read_cycles = random.randint(10, 100) if has_leitora1 else 0
+                read_cycles = random.randint(10, 100) if has_device else 0
 
-            if has_leitora1:
-                leitora1 = Device("leitora1", leitora1_start_cycle, leitora1_read_cycles, IOFinishedEvent)
+                if has_device:
+                    io[dev] = Device(dev, start_cycle, read_cycles, LeitoraUmFinishedEvent)
 
-            # io=(has_leitora1, io_start_time, leitora1_duration))
-            new_job = Job(self.job_ids, run_time,
-                          JobPriority.NORMAL, [disk, leitora1, leitora2, impressora1, impressora2])
+
+            job_priority = random.choice(list(JobPriority)) 
+            
+            new_job = Job(self.job_ids, run_time, job_priority, io)
+            
             self.job_ids += 1
 
             self.os.add_job(new_job)

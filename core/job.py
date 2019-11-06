@@ -8,9 +8,10 @@ JobState = enum.Enum('JobState', 'SUBMIT WAIT_RESOURCES READY RUNNING WAIT_IO DO
 JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
 
 #io = [Disco, Leitora1, Leitora2, Impressora1, Impressora2]
+io = { "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }
 
 class Job:
-    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io=[None, None, None, None, None]): # io=(False, 0, 0)):
+    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io={ "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }):
         self.id = _id
         self.total_cycles = execution_time
         self.priority = priority
