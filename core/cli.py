@@ -9,6 +9,13 @@ from core.job import Job, JobPriority
 from core.devices.device import Device
 from core.event import IOFinishedEvent, DiskFinishedEvent, LeitoraUmFinishedEvent, LeitoraDoisFinishedEvent, ImpressoraUmFinishedEvent, ImpressoraDoisFinishedEvent 
 
+io_config = {
+        "disco": (10, 50),
+        "leitora1": (30, 70),
+        "leitora2": (50, 90),
+        "impressora1": (70,100),
+        "impressora2": (70, 120)
+}
 class CLI:
     def __init__(self):
         self.command_list = {
@@ -71,7 +78,6 @@ class CLI:
                 "impressora2": None
             }
 
-
             for dev in io.keys():
                 io_requests = []
                 has_device = bool(random.randint(0, 1))
@@ -80,29 +86,29 @@ class CLI:
                     continue
 
                 last_start_cycle = 0
-                number_requests = random.randint(1, 6)
+                number_requests = random.randint(1, 5)
 
                 for i in range(number_requests):
                     start_cycle = 0
-                    read_cycles = random.randint(1, 10)
+                    io_cycles = random.randint(*io_config[dev])
 
                     try:
-                        start_cycle = random.randint(last_start_cycle, i * run_time//number_requests - read_cycles)
+                        start_cycle = random.randint(last_start_cycle, i * run_time//number_requests - io_cycles)
                         last_start_cycle = start_cycle
                     except ValueError:
                         continue
                         
-                    io_requests.append((start_cycle, read_cycles))
+                    io_requests.append((start_cycle, io_cycles))
 
 
                 if len(io_requests):
                     io[dev] = Device(dev, io_requests, finish_events[dev])
-                    print(io_requests)
 
 
             job_priority = random.choice(list(JobPriority)) 
+            job_size = random.randint(10, 70)
             
-            new_job = Job(self.job_ids, run_time, job_priority, io)
+            new_job = Job(self.job_ids, run_time, job_priority, io, job_size)
             
             self.job_ids += 1
 

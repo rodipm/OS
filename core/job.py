@@ -10,10 +10,11 @@ JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
 io = { "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }
 
 class Job:
-    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io={ "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }):
+    def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io={ "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }, size=10):
         self.id = _id
         self.total_cycles = execution_time
         self.priority = priority
+        self.size = size
 
         self.arrive_time = 0
         self.start_time = 0

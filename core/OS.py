@@ -8,12 +8,14 @@ import threading
 from .job import Job, JobState, JobPriority
 from .event import IOFinishedEvent, KillProcessEvent, Event
 from .devices.device import Device
+from .memory import Memory
 from queue import Queue, PriorityQueue, Empty
 
 logger = logging.getLogger(__name__)
 
 class OS:
     def __init__(self, multiprogramming=4):
+        self.memory = Memory()
         self.event_queue = Queue()
         self.jobs_queue = PriorityQueue()
         self.ready_jobs = []
@@ -99,15 +101,22 @@ class OS:
         logger.warning(f'[{self.current_cycle:05d}] SO: Unknown event {event_name}')
 
     def _job_scheduler(self):
+
         try:
             new_job = self.jobs_queue.get(False)  # Get job from Priority Queue
         except Empty:
             return
 
-        print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} now READY after {self.current_cycle - new_job.arrive_time} cycles.')
-        new_job.state = JobState.READY
-        new_job.start_time = self.current_cycle
-        self.ready_jobs.append(new_job)  # Add job to active jobs list
+        allocated_segments = self.memory.allocate(new_job.id, new_job.size)
+
+        if allocated_segments:
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} now READY after {self.current_cycle - new_job.arrive_time} cycles.')
+            print(self.memory)
+            new_job.state = JobState.READY
+            new_job.start_time = self.current_cycle
+            self.ready_jobs.append(new_job)  # Add job to active jobs list
+        else:
+            self.jobs_queue.put(new_job)
 
     def _process_scheduler(self):
         for job in self.ready_jobs[:]:
@@ -154,13 +163,15 @@ class OS:
         while self.started:
             self.processing.acquire()
 
+            if self.running_jobs == 0:
+                 self.started = False
+                 
             if len(self.active_jobs) == 0:
                 self.current_cycle += 1
                 self.processing.release()
                 time.sleep(0.1)
-                self.started = False
                 continue
-
+            
 
             for job in self.active_jobs[:]:
                 job.cycle()
@@ -191,6 +202,8 @@ class OS:
                 if job.state == JobState.DONE:
                     print(f'[{self.current_cycle:05d}] SO: Job {job.id} finished after {self.current_cycle - job.start_time} cycles.')
 
+                    self.memory.deallocate(job.id)
+                    print(self.memory)
                     self.running_jobs -= 1
                     self.active_jobs.remove(job)
 
