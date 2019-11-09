@@ -23,6 +23,9 @@ class Job:
 
         self.io = io
 
+        self.cpu_cycles = 0
+        self.io_cycles = 0
+
     @property
     def state(self):
         return self._state
@@ -33,7 +36,26 @@ class Job:
             self._state = st
 
     def __str__(self):
-        return str(self.id)
+        ret_str = f"JOB ID: {self.id} | STATE: {self._state}\n"
+        has_io = False
+        io_str = str()
+        for dev_key in self.io.keys():
+            if self.io[dev_key] != None:
+                has_io = True
+                io_str += f"\t {self.io[dev_key].name}: "
+                for i, req in enumerate(self.io[dev_key].io_requests):
+                    if i != 0:
+                        io_str += " | "
+                    io_str += f"{req[0]}[{req[1]}]"
+                io_str += "\n"
+        if has_io:
+            ret_str += "\tIO: \n"
+            ret_str += io_str + "\n"
+
+        ret_str += f"\tTotal Cycles: {self.total_cycles + self.io_cycles}\n"
+        ret_str += f"\tCPU Cycles: {self.cpu_cycles} ({(self.cpu_cycles / (self.total_cycles + self.io_cycles))*100:.2f}%)\n"
+        ret_str += f"\tIO Cycles: {self.io_cycles} ({(self.io_cycles / (self.total_cycles + self.io_cycles))*100:.2f}%)\n"
+        return ret_str
 
     def __lt__(self, other):
         return self.priority < other.priority
@@ -46,6 +68,10 @@ class Job:
 
     def cycle(self):
         self.current_cycle += 1
-        print(f'Job {self.id} running cycle {self.current_cycle} of {self.total_cycles}.')
+    
+        if self._state == JobState.RUNNING:
+            self.cpu_cycles += 1
+
+        #print(f'Job {self.id} running cycle {self.current_cycle} of {self.total_cycles}.')
         if self.current_cycle == self.total_cycles:
             self.state = JobState.DONE

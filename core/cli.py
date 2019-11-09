@@ -31,6 +31,10 @@ class CLI:
                         "exec": self.ls_command,
                         "desc": "Lista os comandos disponíveis"
                     },
+                "jobs-list": {
+                    "exec": self.jobs_list_command,
+                    "desc": "Lista os Jobs presentes no sistema, assim como estatisticas de execução"
+                },
                 "exit": {
                     "exec": self.exit_command,
                     "desc": "Termina a execução do simulador"
@@ -78,23 +82,28 @@ class CLI:
                 "impressora2": None
             }
 
+            last_start_cycles = [1]
+
             for dev in io.keys():
                 io_requests = []
-                has_device = bool(random.randint(0, 1))
+                #has_device = bool(random.randint(0, 1))
+                has_device = bool(random.random() < 0.9)
 
                 if not has_device:
                     continue
 
-                last_start_cycle = 0
                 number_requests = random.randint(1, 5)
 
                 for i in range(number_requests):
-                    start_cycle = 0
                     io_cycles = random.randint(*io_config[dev])
+                    start_cycle = 1
 
                     try:
-                        start_cycle = random.randint(last_start_cycle, i * run_time//number_requests - io_cycles)
-                        last_start_cycle = start_cycle
+                        start_cycle = random.randint(last_start_cycles[-1], i * run_time//number_requests - io_cycles)
+                        if start_cycle in last_start_cycles:
+                            continue
+
+                        last_start_cycles.append(start_cycle)
                     except ValueError:
                         continue
                         
@@ -124,6 +133,11 @@ class CLI:
         print("Comandos disponiveis:")
         for cmd in self.command_list.keys():
             print(cmd, ": ", self.command_list[cmd]["desc"])
+
+    def jobs_list_command(self):
+        for jb in self.os.jobs_list:
+            print(jb)
+            print("="*15)
 
     def exit_command(self):
         sys.exit()

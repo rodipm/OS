@@ -14,7 +14,8 @@ from queue import Queue, PriorityQueue, Empty
 logger = logging.getLogger(__name__)
 
 class OS:
-    def __init__(self, multiprogramming=4):
+    def __init__(self, num_threads=4):
+        self.clock = 0.1
         self.memory = Memory()
         self.event_queue = Queue()
         self.jobs_queue = PriorityQueue()
@@ -30,10 +31,11 @@ class OS:
         }
 
         self.running_jobs = 0
+        self.jobs_list = []
 
-        self.processing = threading.Lock()
+        self.lock = threading.Lock()
 
-        self.multiprogramming = multiprogramming
+        self.num_threads = num_threads
         self.current_cycle = 0
 
         self.schedulers = None 
@@ -60,7 +62,7 @@ class OS:
         event_base_class = type(event).__bases__[0]
 
         if event_base_class == IOFinishedEvent:
-            print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
+            print(f'SO: Processando evento {event_name} para o Job {event.job_id}.')
             event.process()
 
             waiting_io_jobs_cp = copy.deepcopy(self.waiting_io_jobs)
@@ -72,10 +74,11 @@ class OS:
                     self.waiting_io_jobs[dev].remove(j)
                     j.state = JobState.READY
                     self.ready_jobs.append(j)
+                    self._update_jobs_list(j)
                     return
 
         if type(event) == KillProcessEvent:
-            print(f'[{self.current_cycle:05d}] SO: Processing event {event_name} for Job {event.job_id}.')
+            print(f'SO: Processando evento {event_name} para o Job {event.job_id}.')
             event.process()
 
             for dev in waiting_io_jobs_cp.keys():
@@ -98,7 +101,7 @@ class OS:
                     j.state = JobState.DONE
                     return
 
-        logger.warning(f'[{self.current_cycle:05d}] SO: Unknown event {event_name}')
+        logger.warning(f"SO: Evento desconhecido {event_name}")
 
     def _job_scheduler(self):
 
@@ -110,25 +113,36 @@ class OS:
         allocated_segments = self.memory.allocate(new_job.id, new_job.size)
 
         if allocated_segments:
-            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} now READY after {self.current_cycle - new_job.arrive_time} cycles.')
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {self.current_cycle - new_job.arrive_time} ciclos.')
             print(self.memory)
             new_job.state = JobState.READY
             new_job.start_time = self.current_cycle
             self.ready_jobs.append(new_job)  # Add job to active jobs list
+            self._update_jobs_list(new_job)
         else:
             self.jobs_queue.put(new_job)
+            self._update_jobs_list(new_job)
 
     def _process_scheduler(self):
         for job in self.ready_jobs[:]:
-            if self.running_jobs >= self.multiprogramming:
+            if self.running_jobs >= self.num_threads:
                 continue
 
-            print(f'[{self.current_cycle:05d}] Process Scheduler: Starting job {job.id} after {self.current_cycle - job.arrive_time} cycles')
+            print(f'[{self.current_cycle:05d}] Process Scheduler: Iniciando job {job.id} depois de {self.current_cycle - job.arrive_time} ciclos')
             self.ready_jobs.remove(job)
             job.state = JobState.RUNNING
             self.running_jobs += 1
-            self.active_jobs.append(job) # Initilize job with 0 used cycles
+            self.active_jobs.append(job)
+            self._update_jobs_list(job)
 
+    def _update_jobs_list(self, orig_job: Job):
+        job = copy.deepcopy(orig_job)
+
+        for i, j in enumerate(self.jobs_list[:]):
+            if j.id == job.id:
+                self.jobs_list[i] = job
+                return True
+        self.jobs_list.append(job)
 
     def add_job(self, job: Job):
         devs = []
@@ -139,12 +153,13 @@ class OS:
 
         if len(devs):
             dev_list = " | ".join([dev.name +" "+ str(len(dev.io_requests)) for dev in devs])
-            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and I/O accesses: {dev_list}. Adding to queue.')
+            print(f'SO: Recebeu Job (id {job.id}) com prioridade {JobPriority(job.priority).name} e acessos I/O: {dev_list}. Adicionando a lista.')
         else:
-            print(f'[{self.current_cycle:05d}] SO: Received Job (id {job.id}) with {job.priority} priority and no I/O. Adding to queue.')
+            print(f'SO: Received Job (id {job.id}) with {JobPriority(job.priority).name} sem acessos I/O. Adicionando a lista.')
         job.state = JobState.WAIT_RESOURCES
         job.arrive_time = self.current_cycle
         self.jobs_queue.put(job)
+        self._update_jobs_list(job)
 
     def io_finish(self, job_id, finish_event: Event):
         evt = finish_event(job_id)
@@ -152,29 +167,30 @@ class OS:
 
     def _schedulers(self):
         while self.started:
-            self.processing.acquire()
+            self.lock.acquire()
             self._job_scheduler()
             self._process_scheduler()
             self._event_process()
-            self.processing.release()
+            self.lock.release()
         del(self.schedulers)
 
     def _run(self):
         while self.started:
-            self.processing.acquire()
+            self.lock.acquire()
 
             if self.running_jobs == 0:
                  self.started = False
                  
             if len(self.active_jobs) == 0:
                 self.current_cycle += 1
-                self.processing.release()
-                time.sleep(0.1)
+                self.lock.release()
+                time.sleep(self.clock)
                 continue
             
 
             for job in self.active_jobs[:]:
                 job.cycle()
+                self._update_jobs_list(job)
 
                 for dev in job.io.keys():
                     if not job.io[dev]:
@@ -189,28 +205,32 @@ class OS:
 
                     if request_io:
 
-                        print(f'[{self.current_cycle:05d}] SO: Job {job.id} requesting I/O operation on {job.io[dev].name}.')
-                        t = threading.Timer(0.1 * request_io[1], self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
+                        print(f'[{self.current_cycle:05d}] SO: Job {job.id} pedindo acesso ao dispositivo I/O {job.io[dev].name}.')
+                        t = threading.Timer(self.clock * request_io[1], self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
                         job.state = JobState.WAIT_IO
 
                         self.running_jobs -= 1
                         self.active_jobs.remove(job)
+                        job.io_cycles += request_io[1]
                         self.waiting_io_jobs[dev].append(job)
+                        self._update_jobs_list(job)
 
                         t.start()
 
                 if job.state == JobState.DONE:
-                    print(f'[{self.current_cycle:05d}] SO: Job {job.id} finished after {self.current_cycle - job.start_time} cycles.')
+                    print(f'[{self.current_cycle:05d}] SO: Job {job.id} finalizado depois de {self.current_cycle - job.start_time} ciclos.')
 
                     self.memory.deallocate(job.id)
+                    print(f"[{self.current_cycle:05d}] SO: Estado atual da memõria:")
                     print(self.memory)
                     self.running_jobs -= 1
                     self.active_jobs.remove(job)
+                    self._update_jobs_list(job)
 
                 self.current_cycle += 1
-                time.sleep(0.1)
+                time.sleep(self.clock)
 
-            self.processing.release()
-            time.sleep(0.01)
-        #self.processor.terminate()
+            self.lock.release()
+            self._update_jobs_list(job)
+            time.sleep(0.1*self.clock)
         del(self.processor)
