@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class OS:
     def __init__(self, num_threads=4):
-        self.clock = 0.1
+        self.clock = 0.0
         self.memory = Memory()
         self.event_queue = Queue()
         self.jobs_queue = PriorityQueue()
@@ -155,7 +155,7 @@ class OS:
             dev_list = " | ".join([dev.name +" "+ str(len(dev.io_requests)) for dev in devs])
             print(f'SO: Recebeu Job (id {job.id}) com prioridade {JobPriority(job.priority).name} e acessos I/O: {dev_list}. Adicionando a lista.')
         else:
-            print(f'SO: Received Job (id {job.id}) with {JobPriority(job.priority).name} sem acessos I/O. Adicionando a lista.')
+            print(f'SO: Recebeu Job (id {job.id}) com prioridade {JobPriority(job.priority).name} sem acessos I/O. Adicionando a lista.')
         job.state = JobState.WAIT_RESOURCES
         job.arrive_time = self.current_cycle
         self.jobs_queue.put(job)

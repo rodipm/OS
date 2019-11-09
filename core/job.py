@@ -72,6 +72,5 @@ class Job:
         if self._state == JobState.RUNNING:
             self.cpu_cycles += 1
 
-        #print(f'Job {self.id} running cycle {self.current_cycle} of {self.total_cycles}.')
         if self.current_cycle == self.total_cycles:
             self.state = JobState.DONE

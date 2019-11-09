@@ -19,8 +19,6 @@ class Memory:
         requested_number_segments = job_size//self.segment_size
         requested_number_segments += 1 if job_size % self.segment_size else 0
 
-        print("job_size", job_size)
-        print("requested_segments", requested_number_segments)
 
         if requested_number_segments > self.free_segments:
             return False

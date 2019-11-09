@@ -21,7 +21,7 @@ class IOFinishedEvent(Event):
         self.job_id = job_id
 
     def process(self):
-        print(f'Job {self.job_id} I/O event finished.')
+        print(f'Job {self.job_id}: evento de dispositivo I/O: Finalizado.')
 
 class DiskFinishedEvent(IOFinishedEvent):
     def __init__(self, job_id):
@@ -56,4 +56,4 @@ class KillProcessEvent(Event):
         self.job_id = job_id
 
     def process(self):
-        print(f'Job {self.job_id} killed.')
+        print(f'Job {self.job_id} finalizado.')
