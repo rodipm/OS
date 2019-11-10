@@ -34,8 +34,6 @@ class OS:
         self.running_jobs = 0
         self.jobs_list = []
 
-        #self.lock = threading.Lock()
-
         self.num_threads = num_threads
         self.current_cycle = 0
 
@@ -45,14 +43,9 @@ class OS:
 
 
     def start(self):
-        #self.schedulers = threading.Thread(target=self._schedulers)
-        #self.processor = threading.Thread(target=self._run)
         self.schedulers = self._schedulers
         self.processor = self._run
         self.started = True
-        #self.schedulers.start()
-        #self.processor.start()
-        #return (self.schedulers, self.processor)
         while self.started:
             self.schedulers()
             self.processor()
@@ -173,29 +166,17 @@ class OS:
         self.event_queue.put(evt)
 
     def _schedulers(self):
-        #while self.started:
-        #self.lock.acquire()
         self._job_scheduler()
         self._process_scheduler()
         self._event_process()
-        #self.lock.release()
-        #del(self.schedulers)
 
     def _run(self):
-        #while self.started:
-        #self.lock.acquire()
 
         if len(self.jobs_list) == self.completed_jobs:
             print(f"[{self.current_cycle}] Todos os jobs foram completados!")
             self.started = False
             return
-             
-        #if len(self.active_jobs) == 0:
-        #    self.current_cycle += 1
-        #    #self.lock.release()
-        #    time.sleep(self.clock)
-        #    return
-        
+
         for job in self.active_jobs[:]:
             job.cycle()
             self._update_jobs_list(job)
@@ -214,16 +195,12 @@ class OS:
                 if request_io:
 
                     print(f'[{self.current_cycle:05d}] SO: Job {job.id} pedindo acesso ao dispositivo I/O {job.io[dev].name}.')
-                    #t = threading.Timer(self.clock * request_io[1], self.io_finish, [job.id, job.io[dev].finish_event]) # espera clock * device_read_cycles
                     job.state = JobState.WAIT_IO
                     job.current_io_req = (dev, request_io)
                     self.running_jobs -= 1
                     self.active_jobs.remove(job)
-                    #job.io_cycles += request_io[1]
                     self.waiting_io_jobs[dev].append(job)
                     self._update_jobs_list(job)
-
-                    #t.start()
 
                 
             if job.state == JobState.DONE:
