@@ -7,6 +7,7 @@ Rodrigo Perrucci Macharelli - 9348877
 ## Introdução ##
 
 O projeto tem como objetivo implementar programaticamente um sistema de simulação orientado a eventos cuja intenção é implementar as funcionalidades básicas de um sistema operacional simples, capaz de receber Jobs criados a partir de uma linha de comando, organizar as suas ordens de execução, tratar eventos (aqui simulando o funcionamento de um sistema de interrupções) gerados pelos processos em execução, simular acesso a diferentes dispositivos de entrada e saída e implementa um sistema simples de segmentação de memória com partições fixas, possibilitando um sistema multiprogramado.
+A idéia é conseguir simular tal funcionamento de forma a obter estatísticas de utilização e dados de execução dos processos de forma indivídual e também uma visão geral do sistema.
 
 ## Estrutura do projeto ##
 
@@ -292,5 +293,48 @@ Nas primeiras duas linhas são definidos os estados e prioridades já discutidos
 * **arrive_time, start_time, current_cycle**: Marcadores dos ciclos de chegada do job ao sistema, ciclo de inicio de execução do processo e ciclo atual do Job.
 * **_state**: Estado atual do Job (SUBMIT, WAIT_RESOURCES, READY, RUNNING, WAIT_IO, DONE).
 * **waiting_current_io_cycles**: Contador de ciclos de espera de resposta de dispositivo, reinicializado para cada pedido distinto.
-* **current_io_req**: Apresenta o formato seguinte: _(device, (start_cycle, io_cycles))_. No qual _device_ representa o dispositivo sendo requerido e os respectivos ciclos de início e duração da espera por resposta (para efeitos de simulação).
-* **io**: Representação de todos os eventos de requerimento de dispositivos de I/O associados ao Job
+* **current_io_req**: Requerimento de dispositivo I/O. Apresenta o formato seguinte: _(device, (start_cycle, io_cycles))_. No qual _device_ representa o dispositivo sendo requerido e os respectivos ciclos de início e duração da espera por resposta (para efeitos de simulação).
+* **io**: Representação de todos os eventos de requerimento de dispositivos de I/O associados ao Job. É constituído por um dicionário contendo todos os 5 dispositívos simulados, cada um com um vetor de requerimentos de dispositivo.
+* **cpu_cycles, io_cycles**: Representam a quantidade de ciclos em execução na CPU e em espera por resposta de dispositivo.
+
+#### Ciclo de Job ####
+
+Efetua a execução e atualização dos contadores associados ao Job.
+
+```python
+def cycle(self):
+    self.current_cycle += 1
+
+    if self._state == JobState.RUNNING:
+        self.cpu_cycles += 1
+
+    if self._state == JobState.WAIT_IO:
+        self.waiting_current_io_cycles += 1
+        self.io_cycles += 1
+
+    if self.cpu_cycles == self.total_cycles:
+        self.state = JobState.DONE
+```
+
+### Dispositivos ###
+
+Foram simulados 5 dispositivos de Entrada/Saída neste projeto, cada um com suas respectivas características de tempos de acesso mínimo e máximo. Todos os valores de tempo neste projeto são representados em ciclos do motor de eventos e considera-se que uma instrução seria executada por ciclo em estado normal. Os ciclos de espera de I/O representam o tempo de espera para o processamento do pedido pelos dispositivos, que normalmente duram mais que apenas um ciclo, uma vez que este tipo de operação é muito mais custosa do que qualquer instrução executada diretamente pelo processador, sem necessidade de comunicação com os outros componentes do sistema.
+Os valores de ciclos de espera são aleatórios para cada requerimento de dispositivo, se baseando em um valor mímino e máximo, que por sua vez foram escolhidos de maneira a representar as relações de velocidade entre os dispositivos simulados.
+
+```python
+io_config = {
+        "disco": (10, 50),
+        "leitora1": (30, 70),
+        "leitora2": (50, 90),
+        "impressora1": (70,100),
+        "impressora2": (70, 120)
+}
+
+class Device:
+    def __init__(self, name, io_requests, finish_event: Event):
+        self.name = name
+        self.io_requests = io_requests
+        self.finish_event = finish_event
+```
+
+Em "io_config" pode-se observar os dispositivos simulados, assim como seus valores de máximo e mínimo de espera. Cada device apresenta também um evento de termino associado, que será emitido ao fim do tempo de espera, sendo tratado pelo tratador de eventos.
