@@ -477,3 +477,72 @@ SO: Recebeu Job (id 2) com prioridade NORMAL e acessos I/O: disco 1. Adicionando
 SO: Recebeu Job (id 3) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
 SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
 ```
+
+Note que há Jobs com diferentes prioridades, com ou sem requerimentos de entrada e saída para diferentes dispositivos.
+Utilizando o comando "jobs-list" é possível ter mais dados dos Jobs inseridos no sistema:
+
+```
+JOB ID: 0 | STATE: JobState.WAIT_RESOURCES | SIZE: 69
+	IO: 
+	 disco: 10[25] | 26[38]
+	 leitora1: 36[32]
+
+	Total Cycles: 1
+	CPU Cycles: 0 (0.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 1
+Ciclos de utilização de CPU: 0 (0.00%)
+Ciclos de espera de I/O: 0 (0.00%)
+JOB ID: 1 | STATE: JobState.WAIT_RESOURCES | SIZE: 50
+	IO: 
+	 leitora1: 18[32]
+
+	Total Cycles: 1
+	CPU Cycles: 0 (0.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 1
+Ciclos de utilização de CPU: 0 (0.00%)
+Ciclos de espera de I/O: 0 (0.00%)
+JOB ID: 2 | STATE: JobState.WAIT_RESOURCES | SIZE: 66
+	IO: 
+	 disco: 4[27]
+
+	Total Cycles: 1
+	CPU Cycles: 0 (0.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 1
+Ciclos de utilização de CPU: 0 (0.00%)
+Ciclos de espera de I/O: 0 (0.00%)
+JOB ID: 3 | STATE: JobState.WAIT_RESOURCES | SIZE: 22
+	IO: 
+	 disco: 8[24] | 12[14]
+
+	Total Cycles: 1
+	CPU Cycles: 0 (0.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 1
+Ciclos de utilização de CPU: 0 (0.00%)
+Ciclos de espera de I/O: 0 (0.00%)
+JOB ID: 4 | STATE: JobState.WAIT_RESOURCES | SIZE: 65
+	IO: 
+	 leitora1: 2[46]
+
+	Total Cycles: 1
+	CPU Cycles: 0 (0.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 1
+Ciclos de utilização de CPU: 0 (0.00%)
+Ciclos de espera de I/O: 0 (0.00%)
+```
+
+Pode-se ver o estado de cada Job, seus tamanhos e seus acessos a dispositivos, representados por _start_cycle[io_wait_cycles]_
