@@ -1,5 +1,6 @@
 import sys
 import random
+import inspect
 import enum
 
 from core.OS import OS
@@ -33,6 +34,10 @@ class CLI:
                     "exec": self.jobs_list_command,
                     "desc": "Lista os Jobs presentes no sistema, assim como estatisticas de execução"
                 },
+                "file": {
+                    "exec": self.file_command,
+                    "desc": "Redireciona as saídas do programa para o arquivo out.txt"
+                },
                 "exit": {
                     "exec": self.exit_command,
                     "desc": "Termina a execução do simulador"
@@ -42,12 +47,13 @@ class CLI:
         self.job_ids = 0
         self.total_cycles_io = 0
         self.total_cycles_cpu = 0
+        self.redirect_file = False
+        self.f = None
+        self.orig_stdout = sys.stdout
 
     def listen_to_commands(self):
         while True:
             cmd = input("> ").split()
-
-            print(cmd)
 
             if cmd[0] in self.command_list.keys():
                 if len(cmd) > 1 and len(inspect.getargspec(self.command_list[cmd[0]]["exec"]).args) > 1:
@@ -139,12 +145,26 @@ class CLI:
             self.total_cycles_cpu += jb.cpu_cycles
             self.total_cycles_io += jb.io_cycles
             print("="*15)
-            print(f"Total Simulated Cycles: {self.os.current_cycle}")
+            print(f"Ciclos totais de simulação: {self.os.current_cycle}")
             print(
-                f"Total cpu Cycles: {self.total_cycles_cpu} ({(self.total_cycles_cpu / self.os.current_cycle)*100:.2f}%)")
+                f"Ciclos de utilização de CPU: {self.total_cycles_cpu} ({(self.total_cycles_cpu / self.os.current_cycle)*100:.2f}%)")
             print(
-                f"Total IO Cycles: {self.total_cycles_io} ({(self.total_cycles_io / self.os.current_cycle)*100:.2f}%)")
+                f"Ciclos de espera de I/O: {self.total_cycles_io} ({(self.total_cycles_io / self.os.current_cycle)*100:.2f}%)")
 
+
+    def file_command(self):
+        self.redirect_file = not self.redirect_file
+        if self.redirect_file:
+            self.f = open('out.txt', "w+")
+            f = open('out.txt', 'w+')
+            sys.stdout = self.f
+        else:
+            self.f.close()
+            sys.stdout = self.orig_stdout
 
     def exit_command(self):
         sys.exit()
+
+        if self.redirect_file:
+            self.f.close()
+            sys.stdout = self.orig_stdout

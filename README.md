@@ -74,7 +74,7 @@ def _job_scheduler(self):
         allocated_segments = self.memory.allocate(new_job.id, new_job.size)
 
         if allocated_segments:
-            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {job.current_cycle} ciclos.')
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {new_job.current_cycle} ciclos.')
             print(self.memory)
             new_job.state = JobState.READY
             new_job.start_time = self.current_cycle
@@ -338,3 +338,111 @@ class Device:
 ```
 
 Em "io_config" pode-se observar os dispositivos simulados, assim como seus valores de máximo e mínimo de espera. Cada device apresenta também um evento de termino associado, que será emitido ao fim do tempo de espera, sendo tratado pelo tratador de eventos.
+
+### Eventos ###
+
+São responsáveis por sinalizar a ocorrência de interrupções no sistema, tanto internas (vindas dos dispositivos) quanto externas (vindas de fora do sistema). 
+
+```python
+class Event:
+    def process(self):
+        print(f'Processamento do evento não implementado!')
+
+class IOFinishedEvent(Event):
+    def __init__(self, job_id):
+        super().__init__()
+        self.job_id = job_id
+
+    def process(self):
+        print(f'Job {self.job_id}: evento de dispositivo I/O: Finalizado.')
+
+class DiskFinishedEvent(IOFinishedEvent):
+    def __init__(self, job_id):
+        super().__init__(job_id)
+        self.device_name = "disco"
+
+class LeitoraUmFinishedEvent(IOFinishedEvent):
+    def __init__(self, job_id):
+        super().__init__(job_id)
+        self.device_name = "leitora1"
+
+class LeitoraDoisFinishedEvent(IOFinishedEvent):
+    def __init__(self, job_id):
+        super().__init__(job_id)
+        self.device_name = "leitora2"
+
+class ImpressoraUmFinishedEvent(IOFinishedEvent):
+    def __init__(self, job_id):
+        super().__init__(job_id)
+        self.device_name = "impressora1"
+
+class ImpressoraDoisFinishedEvent(IOFinishedEvent):
+    def __init__(self, job_id):
+        super().__init__(job_id)
+        self.device_name = "impressora2"
+
+class KillProcessEvent(Event):
+    def __init__(self, job_id):
+        super(KillProcessEvent, self).__init__()
+        self.job_id = job_id
+
+    def process(self):
+        print(f'Job {self.job_id} finalizado.')
+```
+
+Temos um tipo de evento para sinalizar o fim do tempo de espera para cada um dos dispositivos simulados, além do evento de finalização forçada do Job.
+
+### Memória ###
+
+Foi implementado um esquema de memória segmentada com partições estáticas, de modo que os segmentos tem todos os mesmos tamanhos nos quais os Jobs são alocados conforme a disponibilidade atual, podendo ser feito de maneira contígua ou não. A classe que representa a memória é a seguinte:
+
+```python
+class Memory:
+    def __init__(self):
+        self.size = 1000 # bytes
+        self.segment_size = 10
+        self.number_segments = self.size // self.segment_size
+        self.segments = [None for _ in range(self.number_segments)]
+        self.free_segments = self.number_segments
+```
+
+A memória é iniciada com um valor de 1000 bytes (valor escolhido para facilidade de representação gráfica) e é segmentada em partições de 10 bytes. Os segmentos são representados por um array, que na realidade corresponde ao segment map, uma vez que os dados não são utilizados de fato, mas sim apenas representados.
+
+É possível efetuar duas operações em memória: alocação e desalocação:
+
+```python
+def allocate(self, job_id, job_size):
+        requested_number_segments = job_size//self.segment_size # partições cheias
+        requested_number_segments += 1 if job_size % self.segment_size else 0 # resto
+
+        # não há espaço disponível
+        if requested_number_segments > self.free_segments:
+            return False
+        
+        allocated_segments = []
+        for i in range(len(self.segments)):
+            if self.segments[i] == None:
+                self.segments[i] = job_id 
+                allocated_segments.append(i)
+                self.free_segments -= 1
+
+                if len(allocated_segments) == requested_number_segments:
+                    break
+
+        return allocated_segments
+
+def deallocate(self, job_id):
+        has_job = False
+        for i, seg in enumerate(self.segments[:]):
+            if seg == job_id:
+                if not has_job:
+                    has_job == True
+                self.segments[i] = None
+                self.free_segments += 1
+        return has_job
+```
+
+A primeira verifica quantos segmentos serão necessários para alocar o Job. Caso tenha espaço livre suficiente, aloca o Job e retorna os segmentos em que foi alocado. Caso não tenha espaço disponível a função retorna False.
+A segunda efetua a desalocação dos segmentos de memória associados ao Job, liberando espaço na memória para outros processos.
+
+### Interface de Linha de Comando ###

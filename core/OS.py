@@ -115,7 +115,7 @@ class OS:
         allocated_segments = self.memory.allocate(new_job.id, new_job.size)
 
         if allocated_segments:
-            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {job.current_cycle} ciclos.')
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {new_job.current_cycle} ciclos.')
             print(self.memory)
             new_job.state = JobState.READY
             new_job.start_time = self.current_cycle

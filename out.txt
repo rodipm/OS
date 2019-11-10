@@ -1,0 +1,154 @@
+> [00000] Job Scheduler: Job 0 está no estado READY depois de 0 ciclos.
+0 0 0 0 0 0 x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00000] Process Scheduler: Iniciando job 0 depois de 0 ciclos
+[00001] Job Scheduler: Job 1 está no estado READY depois de 0 ciclos.
+0 0 0 0 0 0 1 1 x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00001] Process Scheduler: Iniciando job 1 depois de 0 ciclos
+[00003] Job Scheduler: Job 4 está no estado READY depois de 0 ciclos.
+0 0 0 0 0 0 1 1 4 4 
+4 4 4 4 x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00003] Process Scheduler: Iniciando job 4 depois de 0 ciclos
+[00006] Job Scheduler: Job 2 está no estado READY depois de 0 ciclos.
+0 0 0 0 0 0 1 1 4 4 
+4 4 4 4 2 2 2 2 2 2 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00006] Process Scheduler: Iniciando job 2 depois de 0 ciclos
+[00010] Job Scheduler: Job 3 está no estado READY depois de 0 ciclos.
+0 0 0 0 0 0 1 1 4 4 
+4 4 4 4 2 2 2 2 2 2 
+3 3 3 x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00015] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00016] SO: Job 4 pedindo acesso ao dispositivo I/O leitora1.
+[00020] Process Scheduler: Iniciando job 3 depois de 0 ciclos
+[00046] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00080] Process Scheduler: Iniciando job 1 depois de 17 ciclos
+[00092] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00132] SO: Job 3 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00166] Process Scheduler: Iniciando job 2 depois de 32 ciclos
+SO: Processando evento LeitoraUmFinishedEvent para o Job 4.
+Job 4: evento de dispositivo I/O: Finalizado.
+[00220] Process Scheduler: Iniciando job 4 depois de 44 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 3.
+Job 3: evento de dispositivo I/O: Finalizado.
+[00249] Process Scheduler: Iniciando job 3 depois de 46 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00336] SO: Job 3 pedindo acesso ao dispositivo I/O disco.
+[00338] Process Scheduler: Iniciando job 1 depois de 52 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 3.
+Job 3: evento de dispositivo I/O: Finalizado.
+[00423] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00425] Process Scheduler: Iniciando job 3 depois de 79 ciclos
+[00455] SO: Job 0 finalizado depois de 455 ciclos.
+[00455] SO: Estado atual da memõria:
+x x x x x x 1 1 4 4 
+4 4 4 4 2 2 2 2 2 2 
+3 3 3 x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00531] Process Scheduler: Iniciando job 1 depois de 96 ciclos
+[00546] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00560] SO: Job 2 finalizado depois de 554 ciclos.
+[00560] SO: Estado atual da memõria:
+x x x x x x 1 1 4 4 
+4 4 4 4 x x x x x x 
+3 3 3 x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00609] SO: Job 4 finalizado depois de 606 ciclos.
+[00609] SO: Estado atual da memõria:
+x x x x x x 1 1 x x 
+x x x x x x x x x x 
+3 3 3 x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00622] SO: Job 3 finalizado depois de 612 ciclos.
+[00622] SO: Estado atual da memõria:
+x x x x x x 1 1 x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00646] Process Scheduler: Iniciando job 1 depois de 149 ciclos
+[00714] SO: Job 1 finalizado depois de 713 ciclos.
+[00714] SO: Estado atual da memõria:
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[715] Todos os jobs foram completados!
+> 
