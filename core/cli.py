@@ -124,9 +124,10 @@ class CLI:
             self.os.add_job(new_job)
 
     def start_command(self):
-        t1, t2 = self.os.start()
-        t1.join()
-        t2.join()
+        #t1, t2 = self.os.start()
+        self.os.start()
+        #t1.join()
+        #t2.join()
 
 
     def ls_command(self):
