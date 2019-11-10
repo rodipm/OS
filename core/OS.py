@@ -34,10 +34,6 @@ class OS:
         self.running_jobs = 0
         self.jobs_list = []
 
-<<<<<<< HEAD
-=======
-
->>>>>>> no-threads
         self.num_threads = num_threads
         self.current_cycle = 0
 
@@ -181,11 +177,7 @@ class OS:
             print(f"[{self.current_cycle}] Todos os jobs foram completados!")
             self.started = False
             return
-<<<<<<< HEAD
-
-=======
              
->>>>>>> no-threads
         for job in self.active_jobs[:]:
             job.cycle()
             self._update_jobs_list(job)
@@ -210,10 +202,6 @@ class OS:
                     self.waiting_io_jobs[dev].append(job)
                     self._update_jobs_list(job)
 
-<<<<<<< HEAD
-=======
-
->>>>>>> no-threads
                 
             if job.state == JobState.DONE:
                 print(f'[{self.current_cycle:05d}] SO: Job {job.id} finalizado depois de {self.current_cycle - job.start_time} ciclos.')

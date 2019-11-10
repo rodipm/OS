@@ -20,29 +20,6 @@ io_config = {
 class CLI:
     def __init__(self):
         self.command_list = {
-<<<<<<< HEAD
-            "add": {
-                "exec": self.add_command,
-                "desc": "Adiciona um ou mais jobs ao sistema"
-            },
-            "start": {
-                "exec": self.start_command,
-                "desc": "Inicia a simulacao do sistema operacional"
-            },
-            "ls": {
-                "exec": self.ls_command,
-                "desc": "Lista os comandos disponíveis"
-            },
-            "jobs-list": {
-                "exec": self.jobs_list_command,
-                "desc": "Lista os Jobs presentes no sistema, assim como estatisticas de execução"
-            },
-            "exit": {
-                "exec": self.exit_command,
-                "desc": "Termina a execução do simulador"
-            }
-        }
-=======
                 "add": {
                         "exec": self.add_command,
                         "desc": "Adiciona um ou mais jobs ao sistema"
@@ -68,7 +45,6 @@ class CLI:
                     "desc": "Termina a execução do simulador"
                     }
                 }
->>>>>>> no-threads
         self.os = OS()
         self.job_ids = 0
         self.total_cycles_io = 0
@@ -88,12 +64,7 @@ class CLI:
                 else:
                     self.command_list[cmd[0]]["exec"]()
             else:
-<<<<<<< HEAD
-                print(
-                    "Comando Inválido! Digite 'ls' para obter a lista de comandos disponĩveis")
-=======
                 print("Comando Inválido! Digite 'ls' para obter a lista de comandos disponíveis")
->>>>>>> no-threads
 
     ##########
     # commands
@@ -167,18 +138,6 @@ class CLI:
             print(cmd, ": ", self.command_list[cmd]["desc"])
 
     def jobs_list_command(self):
-<<<<<<< HEAD
-        total_io_cycles = 0
-        total_cpu_cycles = 0
-        for jb in self.os.jobs_list:
-            print(jb)
-            total_io_cycles += jb.io_cycles
-            total_cpu_cycles += jb.cpu_cycles
-            print("="*15)
-        print(f"Total Simulated Cycles: {self.os.current_cycle}")
-        print(f"Total I/O Cycles: {total_io_cycles} ({(total_io_cycles/self.os.current_cycle)*100:.2f}%)")
-        print(f"Total cpu Cycles: {total_cpu_cycles} ({(total_cpu_cycles/self.os.current_cycle)*100:.2f}%)")
-=======
         total_cycles_io = 0
         total_cycles_cpu = 0
 
@@ -204,7 +163,6 @@ class CLI:
         else:
             self.f.close()
             sys.stdout = self.orig_stdout
->>>>>>> no-threads
 
     def exit_command(self):
         sys.exit()
