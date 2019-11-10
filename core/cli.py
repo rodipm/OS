@@ -145,11 +145,12 @@ class CLI:
             self.total_cycles_cpu += jb.cpu_cycles
             self.total_cycles_io += jb.io_cycles
             print("="*15)
-            print(f"Ciclos totais de simulação: {self.os.current_cycle}")
+            total_cycles = self.os.current_cycle if self.os.current_cycle else 1
+            print(f"Ciclos totais de simulação: {total_cycles}")
             print(
-                f"Ciclos de utilização de CPU: {self.total_cycles_cpu} ({(self.total_cycles_cpu / self.os.current_cycle)*100:.2f}%)")
+                f"Ciclos de utilização de CPU: {self.total_cycles_cpu} ({(self.total_cycles_cpu / total_cycles)*100:.2f}%)")
             print(
-                f"Ciclos de espera de I/O: {self.total_cycles_io} ({(self.total_cycles_io / self.os.current_cycle)*100:.2f}%)")
+                f"Ciclos de espera de I/O: {self.total_cycles_io} ({(self.total_cycles_io / total_cycles)*100:.2f}%)")
 
 
     def file_command(self):

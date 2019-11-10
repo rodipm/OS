@@ -9,7 +9,7 @@ Rodrigo Perrucci Macharelli - 9348877
 O projeto tem como objetivo implementar programaticamente um sistema de simulação orientado a eventos cuja intenção é implementar as funcionalidades básicas de um sistema operacional simples, capaz de receber Jobs criados a partir de uma linha de comando, organizar as suas ordens de execução, tratar eventos (aqui simulando o funcionamento de um sistema de interrupções) gerados pelos processos em execução, simular acesso a diferentes dispositivos de entrada e saída e implementa um sistema simples de segmentação de memória com partições fixas, possibilitando um sistema multiprogramado.
 A idéia é conseguir simular tal funcionamento de forma a obter estatísticas de utilização e dados de execução dos processos de forma indivídual e também uma visão geral do sistema.
 
-## Estrutura do projeto ##
+## Estrutura e Execução do projeto ##
 
 O projeto foi estruturado de forma a conter uma interface de linha de comando **CLI**, pela qual é possível interagir com o sistema, adicionando Jobs e obtendo dados da simulação, uma **Máquina de Eventos** responsável pela simulação propriamente dita de um sistema operacional simples, um módulo de **Memória** segmentada e **Devices I/O** para os quais os processos em execução podem efetuar requerimentos.
 
@@ -446,3 +446,33 @@ A primeira verifica quantos segmentos serão necessários para alocar o Job. Cas
 A segunda efetua a desalocação dos segmentos de memória associados ao Job, liberando espaço na memória para outros processos.
 
 ### Interface de Linha de Comando ###
+
+Promove a interação com o sistema de simulação, apresenta os seguintes comandos:
+
+* **add**: Adiciona um ou mais jobs ao sistema. add <cpu_cycles> <io_wait_cycles>
+* **start**: Inicia a simulação do sistema operacional.
+* **ls**: Lista os comandos disponíveis.
+* **jobs-list**: Lista os Jobs presentes no sistema, assim como estatisticas de execução.
+* **file**: Redireciona as saídas do programa para o arquivo out.txt.
+* **exit**: Termina a execução do simulador.
+
+Vale a pena ressaltar que é este o módulo responsável pela geração aleatória dos Jobs, sorteando quantos e quais serão as operações de I/O que serão requisitadas por cada Job individualmente.
+
+## Testes e Demonstrações do Projeto ##
+
+A utilização do simulador é bastante simples e pode ser obtido com poucos comandos.
+
+#### Inserção de Jobs ####
+
+Ao utilizar o comando
+
+> add 100 5
+
+São criados 5 Jobs com pedidos aleatórios de operaçoes de entrada e saída
+
+
+> SO: Recebeu Job (id 0) com prioridade HIGH e acessos I/O: disco 2 | leitora1 1. Adicionando a lista.
+> SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
+> SO: Recebeu Job (id 2) com prioridade NORMAL e acessos I/O: disco 1. Adicionando a lista.
+> SO: Recebeu Job (id 3) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
+> SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.

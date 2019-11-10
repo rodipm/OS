@@ -34,7 +34,7 @@ class Job:
             self._state = st
 
     def __str__(self):
-        ret_str = f"JOB ID: {self.id} | STATE: {self._state}\n"
+        ret_str = f"JOB ID: {self.id} | STATE: {self._state} | SIZE: {self.size}\n"
         has_io = False
         io_str = str()
         for dev_key in self.io.keys():
@@ -50,9 +50,10 @@ class Job:
             ret_str += "\tIO: \n"
             ret_str += io_str + "\n"
 
-        ret_str += f"\tTotal Cycles: {self.cpu_cycles + self.io_cycles}\n"
-        ret_str += f"\tCPU Cycles: {self.cpu_cycles} ({(self.cpu_cycles / (self.cpu_cycles + self.io_cycles))*100:.2f}%)\n"
-        ret_str += f"\tIO Cycles: {self.io_cycles} ({(self.io_cycles / (self.cpu_cycles + self.io_cycles))*100:.2f}%)\n"
+        total_cycles = self.cpu_cycles + self.io_cycles if self.cpu_cycles + self.io_cycles else 1
+        ret_str += f"\tTotal Cycles: {total_cycles}\n"
+        ret_str += f"\tCPU Cycles: {self.cpu_cycles} ({(self.cpu_cycles / total_cycles)*100:.2f}%)\n"
+        ret_str += f"\tIO Cycles: {self.io_cycles} ({(self.io_cycles / total_cycles)*100:.2f}%)\n"
         return ret_str
 
     def __lt__(self, other):
