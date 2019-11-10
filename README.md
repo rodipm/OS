@@ -470,9 +470,10 @@ Ao utilizar o comando
 
 São criados 5 Jobs com pedidos aleatórios de operaçoes de entrada e saída
 
-
-> SO: Recebeu Job (id 0) com prioridade HIGH e acessos I/O: disco 2 | leitora1 1. Adicionando a lista.
- SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
- SO: Recebeu Job (id 2) com prioridade NORMAL e acessos I/O: disco 1. Adicionando a lista.
- SO: Recebeu Job (id 3) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
- SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
+```
+SO: Recebeu Job (id 0) com prioridade HIGH e acessos I/O: disco 2 | leitora1 1. Adicionando a lista.
+SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
+SO: Recebeu Job (id 2) com prioridade NORMAL e acessos I/O: disco 1. Adicionando a lista.
+SO: Recebeu Job (id 3) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
+SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
+```
