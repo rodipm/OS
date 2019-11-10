@@ -20,4 +20,28 @@ Baseado no artigo apresentado e nas aulas, foi implementado um motor de eventos 
 5. WAIT_IO: Estado que representa os Jobs que estão aguardando a resposta de um pedido a um dispositivo de entrada e saída (descritos adiante), para que possa então seguir a sua execução, voltando ao estado READY e podendo ser escalonado novamente para a utilização da CPU.
 6. DONE: Estado final da simulação, representando o fim da execução e finalização de todos os pedidos de comunicação com os dispositivos I/O.
 
-Este motor de eventos é representado pelo arquivo __os.py__
+Este motor de eventos é representado pelo arquivo _OS.py_. Para tal efeito foram considerados alguns dos principais elementos presentes em um sistema operacional, implementados neste arquivo e descritos a seguir.
+
+#### Job Scheduler ###
+
+```python
+def _job_scheduler(self):
+
+        try:
+            new_job = self.jobs_queue.get(False)
+        except Empty:
+            return
+
+        allocated_segments = self.memory.allocate(new_job.id, new_job.size)
+
+        if allocated_segments:
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {self.current_cycle - new_job.arrive_time} ciclos.')
+            print(self.memory)
+            new_job.state = JobState.READY
+            new_job.start_time = self.current_cycle
+            self.ready_jobs.append(new_job)
+            self._update_jobs_list(new_job)
+        else:
+            self.jobs_queue.put(new_job)
+            self._update_jobs_list(new_job)
+```
