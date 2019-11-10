@@ -1,7 +1,5 @@
 import sys
 import random
-import inspect
-import threading
 import enum
 
 from core.OS import OS
@@ -25,7 +23,7 @@ class CLI:
                     },
                 "start": {
                         "exec": self.start_command,
-                        "desc": "Inicia a simulacao do sistema operacional"
+                        "desc": "Inicia a simulação do sistema operacional"
                     },
                 "ls": {
                         "exec": self.ls_command,
@@ -58,7 +56,7 @@ class CLI:
                 else:
                     self.command_list[cmd[0]]["exec"]()
             else:
-                print("Comando Inválido! Digite 'ls' para obter a lista de comandos disponĩveis")
+                print("Comando Inválido! Digite 'ls' para obter a lista de comandos disponíveis")
 
     ##########    
     # commands
