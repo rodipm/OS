@@ -34,6 +34,10 @@ class OS:
         self.running_jobs = 0
         self.jobs_list = []
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> no-threads
         self.num_threads = num_threads
         self.current_cycle = 0
 
@@ -73,6 +77,7 @@ class OS:
                     self.waiting_io_jobs[dev].remove(j)
                     j.state = JobState.READY
                     j.current_io_req = None
+                    j.waiting_current_io_cycles = 0
                     self.ready_jobs.append(j)
                     self._update_jobs_list(j)
                     return
@@ -101,23 +106,23 @@ class OS:
                     j.state = JobState.DONE
                     return
 
-        logger.warning(f"SO: Evento desconhecido {event_name}")
+        print(f"SO: Evento desconhecido {event_name}")
 
     def _job_scheduler(self):
 
         try:
-            new_job = self.jobs_queue.get(False)  # Get job from Priority Queue
+            new_job = self.jobs_queue.get(False)
         except Empty:
             return
 
         allocated_segments = self.memory.allocate(new_job.id, new_job.size)
 
         if allocated_segments:
-            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {self.current_cycle - new_job.arrive_time} ciclos.')
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {new_job.current_cycle} ciclos.')
             print(self.memory)
             new_job.state = JobState.READY
             new_job.start_time = self.current_cycle
-            self.ready_jobs.append(new_job)  # Add job to active jobs list
+            self.ready_jobs.append(new_job)
             self._update_jobs_list(new_job)
         else:
             self.jobs_queue.put(new_job)
@@ -128,7 +133,7 @@ class OS:
             if self.running_jobs >= self.num_threads:
                 return
 
-            print(f'[{self.current_cycle:05d}] Process Scheduler: Iniciando job {job.id} depois de {self.current_cycle - job.arrive_time} ciclos')
+            print(f'[{self.current_cycle:05d}] Process Scheduler: Iniciando job {job.id} depois de {job.current_cycle} ciclos')
             self.ready_jobs.remove(job)
             job.state = JobState.RUNNING
             self.running_jobs += 1
@@ -176,24 +181,27 @@ class OS:
             print(f"[{self.current_cycle}] Todos os jobs foram completados!")
             self.started = False
             return
+<<<<<<< HEAD
 
+=======
+             
+>>>>>>> no-threads
         for job in self.active_jobs[:]:
             job.cycle()
             self._update_jobs_list(job)
 
             for dev in job.io.keys():
-                if not job.io[dev]:
+                if job.io[dev] == None:
                     continue
 
                 request_io = False
 
                 for req in job.io[dev].io_requests:
-                    if req[0] == job.current_cycle:
+                    if req[0] == job.cpu_cycles:
                         request_io = req
                         break
 
                 if request_io:
-
                     print(f'[{self.current_cycle:05d}] SO: Job {job.id} pedindo acesso ao dispositivo I/O {job.io[dev].name}.')
                     job.state = JobState.WAIT_IO
                     job.current_io_req = (dev, request_io)
@@ -202,6 +210,10 @@ class OS:
                     self.waiting_io_jobs[dev].append(job)
                     self._update_jobs_list(job)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> no-threads
                 
             if job.state == JobState.DONE:
                 print(f'[{self.current_cycle:05d}] SO: Job {job.id} finalizado depois de {self.current_cycle - job.start_time} ciclos.')
@@ -220,10 +232,10 @@ class OS:
 
         for dev in self.waiting_io_jobs:
             for job in self.waiting_io_jobs[dev]:
-                print(f"WAITING IO Job {job.id} | Finish cycle: {job.current_io_req[1][0] + job.current_io_req[1][1]} | {job.current_cycle}")
+                #print(f"WAITING IO Job {job.id} | Finish cycle: {job.current_io_req[1][1]} | {job.waiting_current_io_cycles}")
                 job.cycle()
                 self.current_cycle += 1
-                if job.current_io_req[1][0] + job.current_io_req[1][1] == job.current_cycle:
+                if job.current_io_req[1][1] == job.waiting_current_io_cycles:
                     self.io_finish(job.id, job.io[job.current_io_req[0]].finish_event)
 
         time.sleep(0.1*self.clock)
