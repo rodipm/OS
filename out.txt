@@ -1,67 +1,137 @@
-> SO: Recebeu Job (id 0) com prioridade HIGH e acessos I/O: disco 2 | leitora1 1. Adicionando a lista.
-SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
-SO: Recebeu Job (id 2) com prioridade NORMAL e acessos I/O: disco 1. Adicionando a lista.
-SO: Recebeu Job (id 3) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
-SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adicionando a lista.
-> JOB ID: 0 | STATE: JobState.WAIT_RESOURCES | SIZE: 69
+> SO: Recebeu Job (id 0) com prioridade NORMAL e acessos I/O: disco 2. Adicionando a lista.
+SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: disco 3. Adicionando a lista.
+SO: Recebeu Job (id 2) com prioridade CRITICAL e acessos I/O: disco 3. Adicionando a lista.
+SO: Recebeu Job (id 3) com prioridade CRITICAL e acessos I/O: disco 1. Adicionando a lista.
+SO: Recebeu Job (id 4) com prioridade CRITICAL e acessos I/O: impressora1 1. Adicionando a lista.
+> [00000] Job Scheduler: Job 2 está no estado READY depois de 0 ciclos.
+2 2 x x x x x x x x 
+[00000] Process Scheduler: Iniciando job 2 depois de 0 ciclos
+[00001] Job Scheduler: Job 3 está no estado READY depois de 0 ciclos.
+2 2 3 3 x x x x x x 
+[00001] Process Scheduler: Iniciando job 3 depois de 0 ciclos
+[00001] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+[00004] Job Scheduler: Job 4 está no estado READY depois de 0 ciclos.
+2 2 3 3 4 4 4 4 4 x 
+[00004] Process Scheduler: Iniciando job 4 depois de 0 ciclos
+[00008] SO: Job 4 pedindo acesso ao dispositivo I/O impressora1.
+[00026] SO: Job 3 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00119] Process Scheduler: Iniciando job 2 depois de 40 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 3.
+Job 3: evento de dispositivo I/O: Finalizado.
+[00142] Process Scheduler: Iniciando job 3 depois de 47 ciclos
+[00163] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento ImpressoraUmFinishedEvent para o Job 4.
+Job 4: evento de dispositivo I/O: Finalizado.
+[00244] Process Scheduler: Iniciando job 4 depois de 80 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00252] Process Scheduler: Iniciando job 2 depois de 85 ciclos
+[00326] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+[00412] SO: Job 3 finalizado depois de 411 ciclos.
+[00412] SO: Estado atual da memõria:
+2 2 x x 4 4 4 4 4 x 
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00426] Process Scheduler: Iniciando job 2 depois de 145 ciclos
+[00494] SO: Job 4 finalizado depois de 490 ciclos.
+[00494] SO: Estado atual da memõria:
+2 2 x x x x x x x x 
+[00496] Job Scheduler: Job 0 está no estado READY depois de 0 ciclos.
+2 2 0 0 0 0 0 x x x 
+[00496] Process Scheduler: Iniciando job 0 depois de 0 ciclos
+[00513] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+[00539] SO: Job 2 finalizado depois de 539 ciclos.
+[00539] SO: Estado atual da memõria:
+x x 0 0 0 0 0 x x x 
+[00541] Job Scheduler: Job 1 está no estado READY depois de 0 ciclos.
+1 1 0 0 0 0 0 1 1 x 
+[00541] Process Scheduler: Iniciando job 1 depois de 0 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00550] Process Scheduler: Iniciando job 0 depois de 27 ciclos
+[00550] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00571] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00579] Process Scheduler: Iniciando job 1 depois de 19 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00592] Process Scheduler: Iniciando job 0 depois de 48 ciclos
+[00602] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00634] Process Scheduler: Iniciando job 1 depois de 47 ciclos
+[00723] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00750] Process Scheduler: Iniciando job 1 depois de 105 ciclos
+[00750] SO: Job 0 finalizado depois de 254 ciclos.
+[00750] SO: Estado atual da memõria:
+1 1 x x x x x 1 1 x 
+[00786] SO: Job 1 finalizado depois de 245 ciclos.
+[00786] SO: Estado atual da memõria:
+x x x x x x x x x x 
+[787] Todos os jobs foram completados!
+> JOB ID: 0 | STATE: JobState.DONE | SIZE: 41
 	IO: 
-	 disco: 10[25] | 26[38]
-	 leitora1: 36[32]
+	 disco: 9[18] | 20[10]
 
-	Total Cycles: 1
-	CPU Cycles: 0 (0.00%)
-	IO Cycles: 0 (0.00%)
+	Total Cycles: 128
+	CPU Cycles: 100 (78.12%)
+	IO Cycles: 28 (21.88%)
 
 ===============
-Ciclos totais de simulação: 1
-Ciclos de utilização de CPU: 0 (0.00%)
-Ciclos de espera de I/O: 0 (0.00%)
-JOB ID: 1 | STATE: JobState.WAIT_RESOURCES | SIZE: 50
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 100 (12.71%)
+Ciclos de espera de I/O: 28 (3.56%)
+JOB ID: 1 | STATE: JobState.DONE | SIZE: 39
 	IO: 
-	 leitora1: 18[32]
+	 disco: 6[13] | 19[15] | 64[13]
 
-	Total Cycles: 1
-	CPU Cycles: 0 (0.00%)
-	IO Cycles: 0 (0.00%)
+	Total Cycles: 141
+	CPU Cycles: 100 (70.92%)
+	IO Cycles: 41 (29.08%)
 
 ===============
-Ciclos totais de simulação: 1
-Ciclos de utilização de CPU: 0 (0.00%)
-Ciclos de espera de I/O: 0 (0.00%)
-JOB ID: 2 | STATE: JobState.WAIT_RESOURCES | SIZE: 66
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 200 (25.41%)
+Ciclos de espera de I/O: 69 (8.77%)
+JOB ID: 2 | STATE: JobState.DONE | SIZE: 16
 	IO: 
-	 disco: 4[27]
+	 disco: 2[38] | 18[29] | 43[35]
 
-	Total Cycles: 1
-	CPU Cycles: 0 (0.00%)
-	IO Cycles: 0 (0.00%)
+	Total Cycles: 202
+	CPU Cycles: 100 (49.50%)
+	IO Cycles: 102 (50.50%)
 
 ===============
-Ciclos totais de simulação: 1
-Ciclos de utilização de CPU: 0 (0.00%)
-Ciclos de espera de I/O: 0 (0.00%)
-JOB ID: 3 | STATE: JobState.WAIT_RESOURCES | SIZE: 22
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 300 (38.12%)
+Ciclos de espera de I/O: 171 (21.73%)
+JOB ID: 3 | STATE: JobState.DONE | SIZE: 19
 	IO: 
-	 disco: 8[24] | 12[14]
+	 disco: 9[38]
 
-	Total Cycles: 1
-	CPU Cycles: 0 (0.00%)
-	IO Cycles: 0 (0.00%)
+	Total Cycles: 138
+	CPU Cycles: 100 (72.46%)
+	IO Cycles: 38 (27.54%)
 
 ===============
-Ciclos totais de simulação: 1
-Ciclos de utilização de CPU: 0 (0.00%)
-Ciclos de espera de I/O: 0 (0.00%)
-JOB ID: 4 | STATE: JobState.WAIT_RESOURCES | SIZE: 65
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 400 (50.83%)
+Ciclos de espera de I/O: 209 (26.56%)
+JOB ID: 4 | STATE: JobState.DONE | SIZE: 46
 	IO: 
-	 leitora1: 2[46]
+	 impressora1: 2[78]
 
-	Total Cycles: 1
-	CPU Cycles: 0 (0.00%)
-	IO Cycles: 0 (0.00%)
+	Total Cycles: 178
+	CPU Cycles: 100 (56.18%)
+	IO Cycles: 78 (43.82%)
 
 ===============
-Ciclos totais de simulação: 1
-Ciclos de utilização de CPU: 0 (0.00%)
-Ciclos de espera de I/O: 0 (0.00%)
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 500 (63.53%)
+Ciclos de espera de I/O: 287 (36.47%)
 > 

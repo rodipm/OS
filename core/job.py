@@ -2,7 +2,8 @@ import time
 import enum
 
 JobState = enum.Enum('JobState', 'SUBMIT WAIT_RESOURCES READY RUNNING WAIT_IO DONE')
-JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
+#JobPriority = enum.IntEnum('JobPriority', 'LOW NORMAL HIGH CRITICAL')
+JobPriority = enum.IntEnum('JobPriority', 'CRITICAL HIGH NORMAL LOW')
 
 class Job:
     def __init__(self, _id, execution_time, priority=JobPriority.NORMAL, io={ "disco": None,"leitora1": None,"leitora2": None,"impressora1": None,"impressora2": None }, size=10):

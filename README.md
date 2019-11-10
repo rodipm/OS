@@ -462,6 +462,8 @@ Vale a pena ressaltar que é este o módulo responsável pela geração aleatór
 
 A utilização do simulador é bastante simples e pode ser obtido com poucos comandos.
 
+### Funcionamento ###
+
 #### Inserção de Jobs ####
 
 Ao utilizar o comando
@@ -479,7 +481,14 @@ SO: Recebeu Job (id 4) com prioridade NORMAL e acessos I/O: leitora1 1. Adiciona
 ```
 
 Note que há Jobs com diferentes prioridades, com ou sem requerimentos de entrada e saída para diferentes dispositivos.
-Utilizando o comando "jobs-list" é possível ter mais dados dos Jobs inseridos no sistema:
+
+#### Detalhamento dos Jobs ####
+
+Ao utilizar o comando
+
+> jobs-list
+
+É possível ter mais dados dos Jobs inseridos no sistema:
 
 ```
 JOB ID: 0 | STATE: JobState.WAIT_RESOURCES | SIZE: 69
@@ -545,4 +554,395 @@ Ciclos de utilização de CPU: 0 (0.00%)
 Ciclos de espera de I/O: 0 (0.00%)
 ```
 
-Pode-se ver o estado de cada Job, seus tamanhos e seus acessos a dispositivos, representados por _start_cycle[io_wait_cycles]_
+Pode-se ver o estado de cada Job, seus tamanhos e seus acessos a dispositivos, representados por _start_cycle[io_wait_cycles]_. Além disso pode-se ver o total de ciclos de utilização de cpu e de espera de I/O de cada job individualmente, assim como os dados para a simulação como um todo.
+
+#### Iniciando a Simulação ####
+
+Após adicionar os Jobs no sistema pode-se iniciar a simulação dos eventos utilizando o comando
+
+> start
+
+Este comando inicia o processo de tratamento dos jobs e eventos, sendo terminado quando todos os jobs submetidos estiverem finalizados.
+
+### Resultado de Testes ###
+
+#### Simulação de 5 Jobs com 100 ciclos de CPU ####
+
+```
+> SO: Recebeu Job (id 0) com prioridade LOW e acessos I/O: disco 2. Adicionando a lista.
+SO: Recebeu Job (id 1) com prioridade LOW e acessos I/O: leitora1 1. Adicionando a lista.
+SO: Recebeu Job (id 2) com prioridade CRITICAL sem acessos I/O. Adicionando a lista.
+SO: Recebeu Job (id 3) com prioridade CRITICAL e acessos I/O: disco 1. Adicionando a lista.
+SO: Recebeu Job (id 4) com prioridade HIGH e acessos I/O: disco 2. Adicionando a lista.
+> [00000] Job Scheduler: Job 2 está no estado READY depois de 0 ciclos.
+2 2 2 2 2 2 x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00000] Process Scheduler: Iniciando job 2 depois de 0 ciclos
+[00001] Job Scheduler: Job 3 está no estado READY depois de 0 ciclos.
+2 2 2 2 2 2 3 3 3 3 
+3 x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00001] Process Scheduler: Iniciando job 3 depois de 0 ciclos
+[00003] Job Scheduler: Job 4 está no estado READY depois de 0 ciclos.
+2 2 2 2 2 2 3 3 3 3 
+3 4 4 x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00003] Process Scheduler: Iniciando job 4 depois de 0 ciclos
+[00006] Job Scheduler: Job 1 está no estado READY depois de 0 ciclos.
+2 2 2 2 2 2 3 3 3 3 
+3 4 4 1 1 1 x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00006] Process Scheduler: Iniciando job 1 depois de 0 ciclos
+[00010] Job Scheduler: Job 0 está no estado READY depois de 0 ciclos.
+2 2 2 2 2 2 3 3 3 3 
+3 4 4 1 1 1 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00017] SO: Job 1 pedindo acesso ao dispositivo I/O leitora1.
+[00019] Process Scheduler: Iniciando job 0 depois de 0 ciclos
+[00021] SO: Job 4 pedindo acesso ao dispositivo I/O disco.
+[00046] SO: Job 3 pedindo acesso ao dispositivo I/O disco.
+[00062] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 4.
+Job 4: evento de dispositivo I/O: Finalizado.
+[00091] Process Scheduler: Iniciando job 4 depois de 18 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 3.
+Job 3: evento de dispositivo I/O: Finalizado.
+[00125] Process Scheduler: Iniciando job 3 depois de 26 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00169] Process Scheduler: Iniciando job 0 depois de 30 ciclos
+[00180] SO: Job 4 pedindo acesso ao dispositivo I/O disco.
+[00257] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento LeitoraUmFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00325] Process Scheduler: Iniciando job 1 depois de 64 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 4.
+Job 4: evento de dispositivo I/O: Finalizado.
+[00404] Process Scheduler: Iniciando job 4 depois de 81 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00474] SO: Job 2 finalizado depois de 474 ciclos.
+[00474] SO: Estado atual da memória:
+x x x x x x 3 3 3 3 
+3 4 4 1 1 1 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00478] Process Scheduler: Iniciando job 0 depois de 84 ciclos
+[00538] SO: Job 3 finalizado depois de 537 ciclos.
+[00538] SO: Estado atual da memória:
+x x x x x x x x x x 
+x 4 4 1 1 1 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00669] SO: Job 4 finalizado depois de 666 ciclos.
+[00669] SO: Estado atual da memória:
+x x x x x x x x x x 
+x x x 1 1 1 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00679] SO: Job 1 finalizado depois de 673 ciclos.
+[00679] SO: Estado atual da memória:
+x x x x x x x x x x 
+x x x x x x 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[00689] SO: Job 0 finalizado depois de 679 ciclos.
+[00689] SO: Estado atual da memória:
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+[690] Todos os jobs foram completados!
+> JOB ID: 0 | STATE: JobState.DONE | SIZE: 33
+	IO: 
+	 disco: 9[21] | 27[36]
+
+	Total Cycles: 157
+	CPU Cycles: 100 (63.69%)
+	IO Cycles: 57 (36.31%)
+
+===============
+Ciclos totais de simulação: 690
+Ciclos de utilização de CPU: 100 (14.49%)
+Ciclos de espera de I/O: 57 (8.26%)
+JOB ID: 1 | STATE: JobState.DONE | SIZE: 27
+	IO: 
+	 leitora1: 3[61]
+
+	Total Cycles: 161
+	CPU Cycles: 100 (62.11%)
+	IO Cycles: 61 (37.89%)
+
+===============
+Ciclos totais de simulação: 690
+Ciclos de utilização de CPU: 200 (28.99%)
+Ciclos de espera de I/O: 118 (17.10%)
+JOB ID: 2 | STATE: JobState.DONE | SIZE: 51
+	Total Cycles: 100
+	CPU Cycles: 100 (100.00%)
+	IO Cycles: 0 (0.00%)
+
+===============
+Ciclos totais de simulação: 690
+Ciclos de utilização de CPU: 300 (43.48%)
+Ciclos de espera de I/O: 118 (17.10%)
+JOB ID: 3 | STATE: JobState.DONE | SIZE: 42
+	IO: 
+	 disco: 11[15]
+
+	Total Cycles: 115
+	CPU Cycles: 100 (86.96%)
+	IO Cycles: 15 (13.04%)
+
+===============
+Ciclos totais de simulação: 690
+Ciclos de utilização de CPU: 400 (57.97%)
+Ciclos de espera de I/O: 133 (19.28%)
+JOB ID: 4 | STATE: JobState.DONE | SIZE: 20
+	IO: 
+	 disco: 5[13] | 24[44]
+
+	Total Cycles: 157
+	CPU Cycles: 100 (63.69%)
+	IO Cycles: 57 (36.31%)
+
+===============
+Ciclos totais de simulação: 690
+Ciclos de utilização de CPU: 500 (72.46%)
+Ciclos de espera de I/O: 190 (27.54%)
+```
+
+Este exemplo mostra o funcionamento completo do sistema de simulação. Na primeira parte mostra-se os Jobs criados e adicionados ao sistema. Em seguida o JobScheduler e o ProcessScheduler tratam os Jobs recebidos os deixando prontos para execução em cpu e alocados na memória.
+
+Note que a representação da memória é mostrada sempre que há uma alocação ou desalocação de um job. Observando no exemplo vemos que o JobScheduler consegue alocar todos os Jobs em memória, pois a memória é maior que a somatória de seus tamanhos. A alocação final fica:
+
+```
+2 2 2 2 2 2 3 3 3 3 
+3 4 4 1 1 1 0 0 0 0 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+x x x x x x x x x x 
+```
+
+A ordem de alocação seguiu a fila de prioridades utilizada pelo JobScheduler, de modo que os Jobs CRITICAL foram alocados primeiro (2 e 3), HIGH (4) e por fim LOW (1 e 0).
+
+Em seguida pode-se observar como ocorrem os pedidos de operações de entrada e saída, além do tratamento dos eventos de termino.
+
+Os dados obtidos com o comando "jobs-list" formam a última parte da saída do programa, com estatísticas de utilização de CPU e espera de dispositivos.
+
+#### Simulação com Memória Reduzida ####
+
+Para testar a administração da memória segmentada diminuiremos o tamanho da memória em 10 vezes para forçar que Jobs tenham que aguardar liberação de recursos.
+
+```
+> SO: Recebeu Job (id 0) com prioridade NORMAL e acessos I/O: disco 2. Adicionando a lista.
+SO: Recebeu Job (id 1) com prioridade NORMAL e acessos I/O: disco 3. Adicionando a lista.
+SO: Recebeu Job (id 2) com prioridade CRITICAL e acessos I/O: disco 3. Adicionando a lista.
+SO: Recebeu Job (id 3) com prioridade CRITICAL e acessos I/O: disco 1. Adicionando a lista.
+SO: Recebeu Job (id 4) com prioridade CRITICAL e acessos I/O: impressora1 1. Adicionando a lista.
+> [00000] Job Scheduler: Job 2 está no estado READY depois de 0 ciclos.
+2 2 x x x x x x x x 
+[00000] Process Scheduler: Iniciando job 2 depois de 0 ciclos
+[00001] Job Scheduler: Job 3 está no estado READY depois de 0 ciclos.
+2 2 3 3 x x x x x x 
+[00001] Process Scheduler: Iniciando job 3 depois de 0 ciclos
+[00001] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+[00004] Job Scheduler: Job 4 está no estado READY depois de 0 ciclos.
+2 2 3 3 4 4 4 4 4 x 
+[00004] Process Scheduler: Iniciando job 4 depois de 0 ciclos
+[00008] SO: Job 4 pedindo acesso ao dispositivo I/O impressora1.
+[00026] SO: Job 3 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00119] Process Scheduler: Iniciando job 2 depois de 40 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 3.
+Job 3: evento de dispositivo I/O: Finalizado.
+[00142] Process Scheduler: Iniciando job 3 depois de 47 ciclos
+[00163] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento ImpressoraUmFinishedEvent para o Job 4.
+Job 4: evento de dispositivo I/O: Finalizado.
+[00244] Process Scheduler: Iniciando job 4 depois de 80 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00252] Process Scheduler: Iniciando job 2 depois de 85 ciclos
+[00326] SO: Job 2 pedindo acesso ao dispositivo I/O disco.
+[00412] SO: Job 3 finalizado depois de 411 ciclos.
+[00412] SO: Estado atual da memória:
+2 2 x x 4 4 4 4 4 x 
+SO: Processando evento DiskFinishedEvent para o Job 2.
+Job 2: evento de dispositivo I/O: Finalizado.
+[00426] Process Scheduler: Iniciando job 2 depois de 145 ciclos
+[00494] SO: Job 4 finalizado depois de 490 ciclos.
+[00494] SO: Estado atual da memória:
+2 2 x x x x x x x x 
+[00496] Job Scheduler: Job 0 está no estado READY depois de 0 ciclos.
+2 2 0 0 0 0 0 x x x 
+[00496] Process Scheduler: Iniciando job 0 depois de 0 ciclos
+[00513] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+[00539] SO: Job 2 finalizado depois de 539 ciclos.
+[00539] SO: Estado atual da memória:
+x x 0 0 0 0 0 x x x 
+[00541] Job Scheduler: Job 1 está no estado READY depois de 0 ciclos.
+1 1 0 0 0 0 0 1 1 x 
+[00541] Process Scheduler: Iniciando job 1 depois de 0 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00550] Process Scheduler: Iniciando job 0 depois de 27 ciclos
+[00550] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+[00571] SO: Job 0 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00579] Process Scheduler: Iniciando job 1 depois de 19 ciclos
+SO: Processando evento DiskFinishedEvent para o Job 0.
+Job 0: evento de dispositivo I/O: Finalizado.
+[00592] Process Scheduler: Iniciando job 0 depois de 48 ciclos
+[00602] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00634] Process Scheduler: Iniciando job 1 depois de 47 ciclos
+[00723] SO: Job 1 pedindo acesso ao dispositivo I/O disco.
+SO: Processando evento DiskFinishedEvent para o Job 1.
+Job 1: evento de dispositivo I/O: Finalizado.
+[00750] Process Scheduler: Iniciando job 1 depois de 105 ciclos
+[00750] SO: Job 0 finalizado depois de 254 ciclos.
+[00750] SO: Estado atual da memória:
+1 1 x x x x x 1 1 x 
+[00786] SO: Job 1 finalizado depois de 245 ciclos.
+[00786] SO: Estado atual da memória:
+x x x x x x x x x x 
+[787] Todos os jobs foram completados!
+> JOB ID: 0 | STATE: JobState.DONE | SIZE: 41
+	IO: 
+	 disco: 9[18] | 20[10]
+
+	Total Cycles: 128
+	CPU Cycles: 100 (78.12%)
+	IO Cycles: 28 (21.88%)
+
+===============
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 100 (12.71%)
+Ciclos de espera de I/O: 28 (3.56%)
+JOB ID: 1 | STATE: JobState.DONE | SIZE: 39
+	IO: 
+	 disco: 6[13] | 19[15] | 64[13]
+
+	Total Cycles: 141
+	CPU Cycles: 100 (70.92%)
+	IO Cycles: 41 (29.08%)
+
+===============
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 200 (25.41%)
+Ciclos de espera de I/O: 69 (8.77%)
+JOB ID: 2 | STATE: JobState.DONE | SIZE: 16
+	IO: 
+	 disco: 2[38] | 18[29] | 43[35]
+
+	Total Cycles: 202
+	CPU Cycles: 100 (49.50%)
+	IO Cycles: 102 (50.50%)
+
+===============
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 300 (38.12%)
+Ciclos de espera de I/O: 171 (21.73%)
+JOB ID: 3 | STATE: JobState.DONE | SIZE: 19
+	IO: 
+	 disco: 9[38]
+
+	Total Cycles: 138
+	CPU Cycles: 100 (72.46%)
+	IO Cycles: 38 (27.54%)
+
+===============
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 400 (50.83%)
+Ciclos de espera de I/O: 209 (26.56%)
+JOB ID: 4 | STATE: JobState.DONE | SIZE: 46
+	IO: 
+	 impressora1: 2[78]
+
+	Total Cycles: 178
+	CPU Cycles: 100 (56.18%)
+	IO Cycles: 78 (43.82%)
+
+===============
+Ciclos totais de simulação: 787
+Ciclos de utilização de CPU: 500 (63.53%)
+Ciclos de espera de I/O: 287 (36.47%)
+```
+
+Repare como a dinamica do sistema muda com uma memória reduzida, de modo que inicialmente apenas três Jobs conseguem ser alocados em memória em um primeiro momento, sendo que os Jobs 0 e 1 têm de esperar o fim da execução dos outros Jobs para que possam ser executados.
+Os dados da simulação nos mostram que, para o mesmo número de Jobs com o mesmo tempo máximo de uso de CPU, a parcela de utilização efetiva do processador diminui com a memória reduzida (de 72.46% para 63.53%), justamente pelo fato de que os Jobs têm de esperar a liberação de recursos do sistema.

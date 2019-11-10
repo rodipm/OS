@@ -1,6 +1,6 @@
 class Memory:
     def __init__(self):
-        self.size = 1000 # bytes
+        self.size = 100 # bytes
         self.segment_size = 10
         self.number_segments = self.size // self.segment_size
         self.segments = [None for _ in range(self.number_segments)]
