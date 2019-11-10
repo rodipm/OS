@@ -20,6 +20,8 @@ class Job:
         self.start_time = 0
         self.current_cycle = 0
         self._state = JobState.SUBMIT
+
+        self.waiting_current_io_cycles = 0
         self.current_io_req = None
 
         self.io = io
@@ -53,9 +55,9 @@ class Job:
             ret_str += "\tIO: \n"
             ret_str += io_str + "\n"
 
-        ret_str += f"\tTotal Cycles: {self.total_cycles}\n"
-        ret_str += f"\tCPU Cycles: {self.cpu_cycles} ({(self.cpu_cycles / (self.total_cycles))*100:.2f}%)\n"
-        ret_str += f"\tIO Cycles: {self.io_cycles} ({(self.io_cycles / (self.total_cycles))*100:.2f}%)\n"
+        ret_str += f"\tTotal Cycles: {self.cpu_cycles + self.io_cycles}\n"
+        ret_str += f"\tCPU Cycles: {self.cpu_cycles} ({(self.cpu_cycles / (self.cpu_cycles + self.io_cycles))*100:.2f}%)\n"
+        ret_str += f"\tIO Cycles: {self.io_cycles} ({(self.io_cycles / (self.cpu_cycles + self.io_cycles))*100:.2f}%)\n"
         return ret_str
 
     def __lt__(self, other):
@@ -74,7 +76,8 @@ class Job:
             self.cpu_cycles += 1
 
         if self._state == JobState.WAIT_IO:
+            self.waiting_current_io_cycles += 1
             self.io_cycles += 1
 
-        if self.current_cycle == self.total_cycles:
+        if self.cpu_cycles == self.total_cycles:
             self.state = JobState.DONE

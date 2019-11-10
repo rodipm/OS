@@ -42,6 +42,8 @@ class CLI:
                 }
         self.os = OS()
         self.job_ids = 0
+        self.total_cycles_io = 0
+        self.total_cycles_cpu = 0
 
     def listen_to_commands(self):
         while True:
@@ -86,7 +88,6 @@ class CLI:
 
             for dev in io.keys():
                 io_requests = []
-                #has_device = bool(random.randint(0, 1))
                 has_device = bool(random.random() < 0.9)
 
                 if not has_device:
@@ -124,11 +125,7 @@ class CLI:
             self.os.add_job(new_job)
 
     def start_command(self):
-        #t1, t2 = self.os.start()
         self.os.start()
-        #t1.join()
-        #t2.join()
-
 
     def ls_command(self):
         print("Comandos disponiveis:")
@@ -136,9 +133,20 @@ class CLI:
             print(cmd, ": ", self.command_list[cmd]["desc"])
 
     def jobs_list_command(self):
+        total_cycles_io = 0
+        total_cycles_cpu = 0
+
         for jb in self.os.jobs_list:
             print(jb)
+            self.total_cycles_cpu += jb.cpu_cycles
+            self.total_cycles_io += jb.io_cycles
             print("="*15)
+            print(f"Total Simulated Cycles: {self.os.current_cycle}")
+            print(
+                f"Total cpu Cycles: {self.total_cycles_cpu} ({(self.total_cycles_cpu / self.os.current_cycle)*100:.2f}%)")
+            print(
+                f"Total IO Cycles: {self.total_cycles_io} ({(self.total_cycles_io / self.os.current_cycle)*100:.2f}%)")
+
 
     def exit_command(self):
         sys.exit()
