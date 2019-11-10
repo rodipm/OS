@@ -103,7 +103,7 @@ class OS:
                     j.state = JobState.DONE
                     return
 
-        logger.warning(f"SO: Evento desconhecido {event_name}")
+        print(f"SO: Evento desconhecido {event_name}")
 
     def _job_scheduler(self):
 
@@ -115,7 +115,7 @@ class OS:
         allocated_segments = self.memory.allocate(new_job.id, new_job.size)
 
         if allocated_segments:
-            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {self.current_cycle - new_job.arrive_time} ciclos.')
+            print(f'[{self.current_cycle:05d}] Job Scheduler: Job {new_job.id} está no estado READY depois de {job.current_cycle} ciclos.')
             print(self.memory)
             new_job.state = JobState.READY
             new_job.start_time = self.current_cycle
@@ -130,7 +130,7 @@ class OS:
             if self.running_jobs >= self.num_threads:
                 return
 
-            print(f'[{self.current_cycle:05d}] Process Scheduler: Iniciando job {job.id} depois de {self.current_cycle - job.arrive_time} ciclos')
+            print(f'[{self.current_cycle:05d}] Process Scheduler: Iniciando job {job.id} depois de {job.current_cycle} ciclos')
             self.ready_jobs.remove(job)
             job.state = JobState.RUNNING
             self.running_jobs += 1
