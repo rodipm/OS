@@ -290,5 +290,7 @@ Nas primeiras duas linhas são definidos os estados e prioridades já discutidos
 * **priority**: Prioridade associada ao Job.
 * **size**: Representa o tamanho médio que o programa ocupará na memória em tempo de execução, tanto com dados quanto com instruções.
 * **arrive_time, start_time, current_cycle**: Marcadores dos ciclos de chegada do job ao sistema, ciclo de inicio de execução do processo e ciclo atual do Job.
-* **_state**: Estado atual do Job (SUBMIT, WAIT_RESOURCES, READY, RUNNING, WAIT_IO, DONE)
-* **waiting_current_io_cycles**: Contador de cíclos de espera de resposta de despositivo
+* **_state**: Estado atual do Job (SUBMIT, WAIT_RESOURCES, READY, RUNNING, WAIT_IO, DONE).
+* **waiting_current_io_cycles**: Contador de ciclos de espera de resposta de dispositivo, reinicializado para cada pedido distinto.
+* **current_io_req**: Apresenta o formato seguinte: _(device, (start_cycle, io_cycles))_. No qual _device_ representa o dispositivo sendo requerido e os respectivos ciclos de início e duração da espera por resposta (para efeitos de simulação).
+* **io**: Representação de todos os eventos de requerimento de dispositivos de I/O associados ao Job
