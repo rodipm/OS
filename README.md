@@ -272,11 +272,11 @@ class Job:
         self.arrive_time = 0
         self.start_time = 0
         self.current_cycle = 0
+
         self._state = JobState.SUBMIT
 
         self.waiting_current_io_cycles = 0
         self.current_io_req = None
-
         self.io = io
 
         self.cpu_cycles = 0
@@ -285,5 +285,10 @@ class Job:
 
 Nas primeiras duas linhas são definidos os estados e prioridades já discutidos anteriormente. A classe Job apresenta os seguintes atributos:
 
-* id: Identificador único do Job
-* total_cycles: Quantidade de ciclos de execução de CPU, representa, a grosso modo, a quantidade de instruções a serem executadas na CPU (esta representação torna-se mais realista se considerarmos um processador com arquitetura de pipeline considerando-o cheio, de forma que apresentaria um throughput de 1 instrução por ciclo em funcionamento normal)
+* **id**: Identificador único do Job.
+* **total_cycles**: Quantidade de ciclos de execução de CPU, representa, a grosso modo, a quantidade de instruções a serem executadas na CPU (esta representação torna-se mais realista se considerarmos um processador com arquitetura de pipeline considerando-o cheio, de forma que apresentaria um throughput de 1 instrução por ciclo em funcionamento normal). É com base neste valor que sabemos o fim do ciclo de vida do Job.
+* **priority**: Prioridade associada ao Job.
+* **size**: Representa o tamanho médio que o programa ocupará na memória em tempo de execução, tanto com dados quanto com instruções.
+* **arrive_time, start_time, current_cycle**: Marcadores dos ciclos de chegada do job ao sistema, ciclo de inicio de execução do processo e ciclo atual do Job.
+* **_state**: Estado atual do Job (SUBMIT, WAIT_RESOURCES, READY, RUNNING, WAIT_IO, DONE)
+* **waiting_current_io_cycles**: Contador de cíclos de espera de resposta de despositivo
