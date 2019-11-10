@@ -10,6 +10,8 @@ O projeto tem como objetivo implementar programaticamente um sistema de simulaç
 
 ## Estrutura do projeto ##
 
+O projeto foi estruturado de forma a conter uma interface de linha de comando **CLI**, pela qual é possível interagir com o sistema, adicionando jobs e obtendo dados da simulação, uma **Máquina de Eventos** responsável pela simulação propriamente dita de um sistema operacional simples, um módulo de **Memória** segmentada e **Devices I/O** para os quais os processos em execução podem efetuar requerimentos.
+
 ### Máquina de eventos ###
 Baseado no artigo apresentado e nas aulas, foi implementado um motor de eventos que implementa uma máquina de estados com seis possíveis estados:
 
@@ -20,7 +22,40 @@ Baseado no artigo apresentado e nas aulas, foi implementado um motor de eventos 
 5. WAIT_IO: Estado que representa os Jobs que estão aguardando a resposta de um pedido a um dispositivo de entrada e saída (descritos adiante), para que possa então seguir a sua execução, voltando ao estado READY e podendo ser escalonado novamente para a utilização da CPU.
 6. DONE: Estado final da simulação, representando o fim da execução e finalização de todos os pedidos de comunicação com os dispositivos I/O.
 
-Este motor de eventos é representado pelo arquivo _OS.py_. Para tal efeito foram considerados alguns dos principais elementos presentes em um sistema operacional, implementados neste arquivo e descritos a seguir.
+Este motor de eventos é representado pela classe **OS**.
+
+```python
+class OS:
+    def __init__(self, num_threads=4):
+        self.clock = 0.0
+
+        self.memory = Memory()
+
+        self.event_queue = Queue()
+        self.jobs_queue = PriorityQueue()
+        self.ready_jobs = []
+        self.active_jobs = []
+        self.completed_jobs = 0
+
+        self.waiting_io_jobs = {
+            "disco": [],
+            "leitora1": [],
+            "leitora2": [],
+            "impressora1": [],
+            "impressora2": []
+        }
+
+        self.running_jobs = 0
+        self.jobs_list = []
+
+        self.num_threads = num_threads
+        self.current_cycle = 0
+
+        self.schedulers = None 
+        self.processor = None 
+        self.started = False
+```
+Para sua implementação foram considerados alguns dos principais elementos presentes em um sistema operacional, implementados nesta classe e descritos a seguir.
 
 #### Job Scheduler ###
 
@@ -126,3 +161,91 @@ Responsável por tratar os eventos gerados pelo sistema, isto é, gerados pelos 
         print(f"SO: Evento desconhecido {event_name}")
 ```
 
+### Processador ###
+
+O processador foi aqui representado pela função mostrada a seguir
+
+```python
+def _run(self):
+
+        if len(self.jobs_list) == self.completed_jobs:
+            print(f"[{self.current_cycle}] Todos os jobs foram completados!")
+            self.started = False
+            return
+             
+        for job in self.active_jobs[:]:
+            job.cycle()
+            self._update_jobs_list(job)
+
+            for dev in job.io.keys():
+                if job.io[dev] == None:
+                    continue
+
+                request_io = False
+
+                for req in job.io[dev].io_requests:
+                    if req[0] == job.cpu_cycles:
+                        request_io = req
+                        break
+
+                if request_io:
+                    print(f'[{self.current_cycle:05d}] SO: Job {job.id} pedindo acesso ao dispositivo I/O {job.io[dev].name}.')
+                    job.state = JobState.WAIT_IO
+                    job.current_io_req = (dev, request_io)
+                    self.running_jobs -= 1
+                    self.active_jobs.remove(job)
+                    self.waiting_io_jobs[dev].append(job)
+                    self._update_jobs_list(job)
+
+
+                
+            if job.state == JobState.DONE:
+                print(f'[{self.current_cycle:05d}] SO: Job {job.id} finalizado depois de {self.current_cycle - job.start_time} ciclos.')
+
+                self.memory.deallocate(job.id)
+                print(f"[{self.current_cycle:05d}] SO: Estado atual da memõria:")
+                print(self.memory)
+                self.running_jobs -= 1
+                self.active_jobs.remove(job)
+                self.completed_jobs += 1
+                self._update_jobs_list(job)
+
+
+            self.current_cycle += 1
+            time.sleep(self.clock)
+
+        for dev in self.waiting_io_jobs:
+            for job in self.waiting_io_jobs[dev]:
+                job.cycle()
+                self.current_cycle += 1
+                if job.current_io_req[1][1] == job.waiting_current_io_cycles:
+                    self.io_finish(job.id, job.io[job.current_io_req[0]].finish_event)
+
+        time.sleep(0.1*self.clock)
+```
+
+Este é responsável por simular a execução dos processos ativos no sistema, atualizando seus estados de ciclos e dando continuidade a simulação. Caso existam requerimentos de dispositivos de entrada e saída associados ao job sendo processado no tempo de simulação corrente, serão tratados e inseridos os respectivos eventos a lista de eventos a serem processados, alterando o estado do job para WAIT_IO. Caso o Job tenha sido finalizado, este é removido da memória, liberando espaço para outros jobs que estejam aguardando a disponibilidade de recursos.
+Caso o número de jobs completos seja igual ao número de Jobs submetidos ao sistema, a simulação é finalizada.
+
+### Execução da simulação ###
+
+Sendo expostos os principais componentes da simulação, pode-se mostrar como foi feita a elaboração de sua execução, representada por um laço que executa os componentes citados acima de forma a representar o processo real de funcionamento de um sistema operacional.
+
+```python
+def start(self):
+    self.schedulers = self._schedulers
+    self.processor = self._run
+    self.started = True
+    while self.started:
+        self.schedulers()
+        self.processor()
+```
+
+Sendo que "_schedulers" representa os três elementos de manipulação dos jobs:
+
+```python
+def _schedulers(self):
+    self._job_scheduler()
+    self._process_scheduler()
+    self._event_process()
+```
