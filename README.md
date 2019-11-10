@@ -946,3 +946,7 @@ Ciclos de espera de I/O: 287 (36.47%)
 
 Repare como a dinamica do sistema muda com uma memória reduzida, de modo que inicialmente apenas três Jobs conseguem ser alocados em memória em um primeiro momento, sendo que os Jobs 0 e 1 têm de esperar o fim da execução dos outros Jobs para que possam ser executados.
 Os dados da simulação nos mostram que, para o mesmo número de Jobs com o mesmo tempo máximo de uso de CPU, a parcela de utilização efetiva do processador diminui com a memória reduzida (de 72.46% para 63.53%), justamente pelo fato de que os Jobs têm de esperar a liberação de recursos do sistema.
+
+## Conclusão e Considerações Finais ##
+
+Trata-se de um trabalho bastante ilustrativo das funcionalidades de um sistema operacional e como são manejados os processos e Jobs dentro deste contexto, possibilitando um melhor entendimento do sistema como um todo. Não foi aqui implementado um sistema de Arquivos e referencias pelos Jobs, mas de maneira geral, a sua implementação se assemelha àquela utilizada na memória segmentada com as representações de segmentos referenciados, porém no contexto do disco.
